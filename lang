@@ -1,0 +1,63 @@
+;; a->f(b) == f(a, b)
+;; a |> f(b) == f(b)(a)
+pub def example(arg1: t1, arg2: t2, ...args: *t3) => t4:
+    var = foo(arg1.field) |> bar
+
+    for arg in args:
+        print(arg)
+
+    return var
+
+
+def mut-example(arg1: mut t1, ...args: *t2) => void:
+    mut var = 0
+
+    for arg in args:
+        var := foo(var, arg)
+
+    arg1.field := var
+
+
+pub type list['a]:
+    Cons('a, list['a])
+    None
+
+type a_record: {
+    field1: int,
+    field2: float,
+}
+
+object stack['a]:
+    prop v: mut list['a]
+
+    meth pop:
+        match v with
+            Cons(a, l') =>
+                v := l'
+                return a
+            None =>
+                raise EmptyStack
+
+
+def pattern-example(l: list['a]) => int:
+    match l with:
+        Cons(a, l') =>
+            return 1 + pattern-example(l')
+        None =>
+            return 0
+
+
+def exception-example() => void:
+    handler a-handler(excp: ValueError):
+        print("This shouldn't happen!")
+
+    handler another-handler(excp: NetworkError):
+        print("This sucks!")
+
+    try with (a-handler, another-handler):
+        return this-will-fail()
+    except:
+        print("A unexpected error")
+
+    ;; wrapping a exception in Option
+    var = try? test()

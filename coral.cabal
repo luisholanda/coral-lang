@@ -1,0 +1,95 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: d570b149f7bf4a9d86bcb5958b577818499ea31f58ca557ac978e4a268e266bf
+
+name:           coral
+version:        0.0.0
+homepage:       https://github.com/luisholanda/coral#readme
+bug-reports:    https://github.com/luisholanda/coral/issues
+author:         Luis Holanda <holandal@acm.org>
+maintainer:     Luis Holanda <holandal@acm.org>
+license:        MIT
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    CHANGELOG.md
+    LICENSE.md
+    package.yaml
+    README.md
+    stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/luisholanda/coral
+
+library
+  exposed-modules:
+      Example
+      Language.Coral.Syntax.AST
+      Language.Coral.Syntax.Exception
+      Language.Coral.Syntax.Parser.Lexer
+      Language.Coral.Syntax.Parser.Parser
+      Language.Coral.Syntax.Parser.Types
+  other-modules:
+      Paths_coral
+  hs-source-dirs:
+      library
+  default-extensions: OverloadedStrings DeriveDataTypeable DeriveFunctor BangPatterns LambdaCase NamedFieldPuns
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  build-depends:
+      base
+    , containers
+    , indents
+    , parsec
+    , pretty
+    , text
+  default-language: Haskell2010
+
+executable coral
+  main-is: Main.hs
+  other-modules:
+      Paths_coral
+  hs-source-dirs:
+      executable
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , coral
+    , text
+  default-language: Haskell2010
+
+test-suite coral-test-suite
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_coral
+  hs-source-dirs:
+      test-suite
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , coral
+    , tasty
+    , tasty-hspec
+    , text
+  default-language: Haskell2010
+
+benchmark coral-benchmarks
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_coral
+  hs-source-dirs:
+      benchmark
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , coral
+    , criterion
+    , text
+  default-language: Haskell2010

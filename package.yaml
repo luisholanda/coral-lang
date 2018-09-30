@@ -1,0 +1,78 @@
+# This YAML file describes your package. Stack will automatically generate a
+# Cabal file when you run `stack build`. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+name: coral
+version: "0.0.0"
+github: "luisholanda/coral"
+license: MIT
+author: "Luis Holanda <holandal@acm.org>"
+maintainer: "Luis Holanda <holandal@acm.org>"
+
+extra-source-files:
+  - CHANGELOG.md
+  - LICENSE.md
+  - package.yaml
+  - README.md
+  - stack.yaml
+
+ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+
+dependencies:
+  - text
+
+default-extensions:
+  - OverloadedStrings
+
+library:
+  dependencies:
+    - base
+    - containers
+    - pretty
+    - parsec
+    - indents
+  source-dirs: library
+  default-extensions:
+    - DeriveDataTypeable
+    - DeriveFunctor
+    - BangPatterns
+    - LambdaCase
+    - NamedFieldPuns
+
+executables:
+  coral:
+    source-dirs: executable
+    main: Main.hs
+    dependencies:
+      - base
+      - coral
+    ghc-options:
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
+
+benchmarks:
+  coral-benchmarks:
+    source-dirs: benchmark
+    main: Main.hs
+    dependencies:
+      - base
+      - coral
+      - criterion
+    ghc-options:
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
+
+tests:
+  coral-test-suite:
+    source-dirs: test-suite
+    main: Main.hs
+    dependencies:
+      - base
+      - coral
+      - tasty
+      - tasty-hspec
+    ghc-options:
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
