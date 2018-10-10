@@ -13,9 +13,9 @@ def mut-example(arg1: mut t1, ...args: *t2) => void:
     mut var = 0
 
     for arg in args:
-        var := foo(var, arg)
+        var .= foo(var, ...arg)
 
-    arg1.field := var
+    arg1.field .= var
 
 
 pub type list['a]:
@@ -33,7 +33,7 @@ object stack['a]:
     meth pop:
         match v with
             Cons(a, l') =>
-                v := l'
+                v .= l'
                 return a
             None =>
                 raise EmptyStack
@@ -60,4 +60,4 @@ def exception-example() => void:
         print("A unexpected error")
 
     ;; wrapping a exception in Option
-    var = try? test()
+    var = try test()

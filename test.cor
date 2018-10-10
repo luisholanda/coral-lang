@@ -1,0 +1,48 @@
+;; a->f(b) == f(a, b)
+;; a |> f(b) == f(b)(a)
+pub def example(arg1: Int, arg2: Int, ...args: *Int) => Int:
+    var = foo(arg1.field) |> bar |> test
+
+    for arg in args:
+        print(arg)
+
+    return var
+
+
+def mut-example(arg1: mut 't1, ...args: *'t2) => Void:
+    mut var = 0
+
+    for arg in args:
+        var .= foo(var, ...arg)
+
+    arg1.field .= var
+
+
+pub type List['a]:
+    Cons('a, List['a])
+    None
+
+type ARecord:
+    field1: Int
+    field2: Float
+
+data Stack['a]:
+    prop v: mut List['a]
+
+    def pop() => Void:
+        pass
+
+def exception-example() => Void:
+    def a-handler(excp: ValueError) => Void:
+        print("This shouldn't happen!")
+
+    def another-handler(excp: NetworkError) => Void:
+        print("This sucks!")
+
+    try with a-handler, another-handler:
+        return this-will-fail()
+    except:
+        print("A unexpected error")
+
+    ;; wrapping a exception in Option
+    var = await try test()

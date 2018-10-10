@@ -24,12 +24,16 @@ default-extensions:
   - OverloadedStrings
 
 library:
+  build-tools:
+    - alex
+    - happy
   dependencies:
     - base
     - containers
+    - bytestring
     - pretty
-    - parsec
-    - indents
+    - array
+    - mtl
   source-dirs: library
   default-extensions:
     - DeriveDataTypeable
@@ -37,6 +41,8 @@ library:
     - BangPatterns
     - LambdaCase
     - NamedFieldPuns
+    - ScopedTypeVariables
+    - ExistentialQuantification
 
 executables:
   coral:
@@ -45,6 +51,7 @@ executables:
     dependencies:
       - base
       - coral
+      - pretty-simple
     ghc-options:
       - -rtsopts
       - -threaded

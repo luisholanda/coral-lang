@@ -8,8 +8,9 @@ data Ident = Ident
   } deriving (Eq, Ord, Show, Typeable, Data)
 
 data Module =
-  Module Suite -- private declarations
-         Suite -- exposed declarations
+  Module { private :: Suite -- private declarations
+         , public :: Suite -- exposed declarations
+         }
   deriving (Eq, Ord, Show, Typeable, Data)
 
 type Suite = [Statement]
@@ -26,8 +27,16 @@ data FromItems
   | OnlyItems [Ident]
   deriving (Eq, Ord, Show, Typeable, Data)
 
+data TypeDef = Sum | Product | Record
+  deriving (Eq, Ord, Show, Typeable, Data)
+
+data DataDef = DataDef
+  deriving (Eq, Ord, Show, Typeable, Data)
+
 data Statement
   = Import { importedItems :: [ImportItem] }
+  | TypeD TypeDef
+  | DataD DataDef
   | While { cond :: Expr
           , body :: Suite
           , else' :: Suite }
@@ -65,7 +74,7 @@ data Statement
   | Delete [Expr]
   | VarDef { varName :: Ident
            , varType :: Type
-           , varValue :: Expr }
+           , varValue :: Maybe Expr }
   | Expression Expr
   | Assert Expr
   deriving (Eq, Ord, Show, Typeable, Data)
@@ -79,15 +88,15 @@ data Parameter
   = Param { paramName :: Ident
           , paramType :: Type
           , paramDefault :: Maybe Expr }
-  | VarArg { paramName :: Ident
-           , paramType :: Type }
+  | VarParam { paramName :: Ident
+             , paramType :: Type }
   | EndPositional
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Argument
-  = ArgExpr Expr
-  | ArgVarArgs Expr
-  | ArgKeyword Ident
+  = Arg Expr
+  | VarArg Expr
+  | KeywordArg Ident
                Expr
   deriving (Eq, Ord, Show, Typeable, Data)
 
@@ -131,7 +140,7 @@ data Expr
   = Var Ident
   | Int Integer
   | Float Double
-  | Imagary Double
+  | Imaginary Double
   | Bool Bool
   | None
   | ByteString !T.Text
@@ -180,6 +189,8 @@ data DictKeyDatumList
 
 data Type
   = Type DottedName
+  | GenType DottedName [Type]
+  | FunType [Type] Type
   | ArgsType Type
   | FreeType Ident
   | MutType Type
