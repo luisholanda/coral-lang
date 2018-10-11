@@ -216,6 +216,7 @@ rules Subscript ::= Test
                   | Test ":" Test ":" Test
                   | ":" Test ":" Test
                   | Test ":" ":" Test
+                  | Test ":" Test ":"
                   | Test ":" ":"
                   | ":" Test ":"
                   | ":" ":" Test;

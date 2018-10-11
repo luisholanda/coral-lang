@@ -22,6 +22,9 @@ dependencies:
 
 default-extensions:
   - OverloadedStrings
+  - UnicodeSyntax
+  - ExistentialQuantification
+  - ScopedTypeVariables
 
 library:
   build-tools:
@@ -41,8 +44,6 @@ library:
     - BangPatterns
     - LambdaCase
     - NamedFieldPuns
-    - ScopedTypeVariables
-    - ExistentialQuantification
 
 executables:
   coral:
