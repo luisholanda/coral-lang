@@ -1,18 +1,19 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 20e727af3827d052e3895410b0d2564d8decbf8ec01a9332dbc86ad49c7d0fac
+-- hash: 3630325ab3341bf11e2bde915058dd35d8771ae224240395682b145d4192b8cc
 
 name:           coral
-version:        0.0.0
+version:        0.1.0
 homepage:       https://github.com/luisholanda/coral#readme
 bug-reports:    https://github.com/luisholanda/coral/issues
 author:         Luis Holanda <holandal@acm.org>
 maintainer:     Luis Holanda <holandal@acm.org>
 license:        MIT
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     CHANGELOG.md
     LICENSE.md
@@ -34,22 +35,22 @@ library
       Language.Coral.Syntax.Parser.LayoutGrammar
       Language.Coral.Syntax.Parser.LexGrammar
       Language.Coral.Syntax.Parser.ParGrammar
-      Language.Coral.Syntax.Parser.PrintGrammar
-      Language.Coral.Syntax.Parser.SkelGrammar
       Language.Coral.Syntax.Parser.Translate
+      Language.Coral.Syntax.Pretty
+      Language.Coral.Syntax.Pretty.Common
   other-modules:
       Paths_coral
   hs-source-dirs:
       library
-  default-extensions: OverloadedStrings UnicodeSyntax ExistentialQuantification ScopedTypeVariables DeriveDataTypeable DeriveFunctor BangPatterns LambdaCase NamedFieldPuns
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  default-extensions: OverloadedStrings UnicodeSyntax ScopedTypeVariables DeriveDataTypeable DeriveFunctor BangPatterns LambdaCase NamedFieldPuns
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wnoncanonical-monad-instances
   build-depends:
       array
     , base
     , bytestring
     , containers
     , mtl
-    , pretty
+    , prettyprinter
     , text
   build-tools:
       alex
@@ -62,8 +63,8 @@ executable coral
       Paths_coral
   hs-source-dirs:
       executable
-  default-extensions: OverloadedStrings UnicodeSyntax ExistentialQuantification ScopedTypeVariables
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  default-extensions: OverloadedStrings UnicodeSyntax ScopedTypeVariables
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wnoncanonical-monad-instances -rtsopts -threaded -with-rtsopts=-N
   build-depends:
       base
     , coral
@@ -78,8 +79,8 @@ test-suite coral-test-suite
       Paths_coral
   hs-source-dirs:
       test-suite
-  default-extensions: OverloadedStrings UnicodeSyntax ExistentialQuantification ScopedTypeVariables
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  default-extensions: OverloadedStrings UnicodeSyntax ScopedTypeVariables
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wnoncanonical-monad-instances -rtsopts -threaded -with-rtsopts=-N
   build-depends:
       base
     , coral
@@ -95,8 +96,8 @@ benchmark coral-benchmarks
       Paths_coral
   hs-source-dirs:
       benchmark
-  default-extensions: OverloadedStrings UnicodeSyntax ExistentialQuantification ScopedTypeVariables
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -rtsopts -threaded -with-rtsopts=-N
+  default-extensions: OverloadedStrings UnicodeSyntax ScopedTypeVariables
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wnoncanonical-monad-instances -rtsopts -threaded -with-rtsopts=-N
   build-depends:
       base
     , coral

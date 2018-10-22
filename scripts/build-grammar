@@ -5,7 +5,7 @@ echo $PWD
 
 bnfc -p Language.Coral.Syntax.Parser \
      --haskell --ghc --functor \
-     $PWD/library/$module/Grammar.cf
+     $PWD/Grammar/Grammar.cf
 
 mv $PWD/$module/AbsGrammar.hs    library/$module/AbsGrammar.hs
 mv $PWD/$module/ErrM.hs          library/$module/ErrM.hs
