@@ -47,7 +47,7 @@ rules IndentLine ::= "def" NAME "(" [Parameter] ")" "=>" Type ":"
                    | "except" ":"
                    | "finally" ":"
                    | "try" "with" [Test] ":"
-                   | "except" [Test] ":"
+                   | "except" [ExceptClause] ":"
                    | "type" TypeName ":"
                    | "data" TypeName ":";
 
@@ -128,8 +128,10 @@ For.       Statement ::= "for" [Test] "in" [Test] Suite;
 
 -- If Statement
 IfElse.    Statement ::= "if" BoolExpr Suite [Elif] "else" Suite;
+IfElif.    Statement ::= "if" BoolExpr Suite [Elif];
 If.        Statement ::= "if" BoolExpr Suite;
-Elif. Elif ::= "elif" Expr Suite;
+
+Elif. Elif ::= "elif" BoolExpr Suite;
 separator Elif "";
 
 -- Try Statement
@@ -141,8 +143,12 @@ Try.       Statement ::= "try" Suite [Except];
 TryWith.   Statement ::= "try" "with" [Test] Suite [Except];
 
 EExcp. Except ::= "except" Suite;
-Excp.  Except ::= "except" [Test] Suite;
+Excp.  Except ::= "except" [ExceptClause] Suite;
 separator Except "";
+
+EClauseAs. ExceptClause ::= TypeName "as" NAME;
+EClause.   ExceptClause ::= TypeName;
+separator nonempty ExceptClause ",";
 
 -- Keywords
 Break.     Statement ::= "break";

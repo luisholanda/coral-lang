@@ -1,10 +1,11 @@
+{-# LANGUAGE UnicodeSyntax #-}
 module Language.Coral.Syntax.AST where
 
-import           Data.Data
-import           Data.Text as T
+import Data.Data
+import Data.Text as T
 
-data Ident = Ident
-  { name :: !T.Text
+newtype Ident = Ident
+  { name :: T.Text
   } deriving (Eq, Ord, Show, Typeable, Data)
 
 data Module =
@@ -37,7 +38,7 @@ data TypeDef
 data Constructor
    = ConstRecord { constName   :: Ident
                  , constFields :: [Field]}
-   | Product { constName :: Ident
+   | Product { constName  :: Ident
              , constTyped :: [Type]}
    | Term { constName :: Ident }
    deriving (Eq, Ord, Show, Typeable, Data)
@@ -46,7 +47,13 @@ data Field = Field { fieldName :: Ident
                    , fieldType :: Type }
     deriving (Eq, Ord, Show, Typeable, Data)
 
-data DataDef = DataDef
+data DataDef = DataDef { dataName   :: Type
+                       , dataFields :: [DataField]}
+  deriving (Eq, Ord, Show, Typeable, Data)
+
+data DataField
+  = Method Statement
+  | Prop Ident Type
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Statement
@@ -57,7 +64,7 @@ data Statement
           , body  :: Suite
           , else' :: Maybe Suite }
   | For { targets   :: [Expr]
-        , generator :: Expr
+        , generator :: [Expr]
         , body      :: Suite
         , else'     :: Maybe Suite }
   | AsyncFor Statement
@@ -68,13 +75,17 @@ data Statement
   | AsyncFun Statement
   | Conditional { guards :: [(Expr, Suite)]
                 , else'  :: Maybe Suite }
+  | Declaration { name' :: Ident
+                , type' :: Type
+                , value :: Maybe Expr }
+  | MutDeclaration { name' :: Ident
+                   , type' :: Type
+                   , value :: Maybe Expr }
   | Assign { to   :: Expr
            , expr :: Expr }
   | MutAssign { to   :: Expr
               , expr :: Expr }
-  | Decorated { decorators :: [Decorator]
-              , decoraterd :: Statement }
-  | Return { retExpr :: Maybe Expr }
+  | Return { returns :: [Expr] }
   | Try { body     :: Suite
         , excepts  :: [Handler]
         , handlers :: [Expr]
@@ -88,9 +99,6 @@ data Statement
   | Break
   | Continue
   | Delete [Expr]
-  | VarDef { varName  :: Ident
-           , varType  :: Type
-           , varValue :: Maybe Expr }
   | Expression Expr
   | Assert Expr
   deriving (Eq, Ord, Show, Typeable, Data)
@@ -121,8 +129,9 @@ data Handler = Handler
   , hanBody :: Suite
   } deriving (Eq, Ord, Show, Typeable, Data)
 
-data ExceptClause =
-  ExceptClause (Maybe (Expr, Maybe (Expr)))
+data ExceptClause
+  = CatchAll
+  | Catch [(Type, Maybe Ident)]
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Comprehension = Comprehension
@@ -194,6 +203,7 @@ data Expr
   | Slice (Maybe Expr) (Maybe Expr) (Maybe Expr)
   | Generator Comprehension
   | Await Expr
+  | TryE Expr
   | ListComp Comprehension
   | List [Expr]
   | Dict [DictKeyDatumList]
@@ -241,7 +251,6 @@ data Op
   | IsNot
   | NotIn
   | BinaryOr
-  | Xor
   | BinaryAnd
   | BinaryXor
   | ShiftLeft
