@@ -1,8 +1,8 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Language.Coral.Syntax.AST where
+module Language.Coral.AST where
 
-import Data.Data
-import Data.Text as T
+import           Data.Data
+import           Data.Text                     as T
 
 newtype Ident = Ident
   { name :: T.Text

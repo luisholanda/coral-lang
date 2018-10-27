@@ -1,15 +1,19 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Language.Coral.Syntax.Parser
+module Language.Coral.Parser
   ( parseInput
   )
 where
 
-import Language.Coral.Syntax.AST               ( Module )
-import Language.Coral.Syntax.Parser.ErrM       ( Err )
-import Language.Coral.Syntax.Parser.Layout     ( fixLayout )
-import Language.Coral.Syntax.Parser.ParGrammar ( myLexer, pProgram )
-import Language.Coral.Syntax.Parser.Translate  ( translate )
+import           Language.Coral.AST             ( Module )
+import           Language.Coral.Parser.ErrM     ( Err )
+import           Language.Coral.Parser.Layout   ( fixLayout )
+import           Language.Coral.Parser.ParGrammar
+                                                ( myLexer
+                                                , pProgram
+                                                )
+import           Language.Coral.Parser.Translate
+                                                ( translate )
 
 
-parseInput ∷ String → Err Module
+parseInput :: String -> Err Module
 parseInput = (translate <$>) . pProgram . fixLayout True . myLexer

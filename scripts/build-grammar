@@ -1,17 +1,17 @@
 #!/bin/bash
-module=Language/Coral/Syntax/Parser
+module=Language/Coral/Parser
 
 echo $PWD
 
-bnfc -p Language.Coral.Syntax.Parser \
+bnfc -p Language.Coral.Parser \
      --haskell --ghc --functor \
-     $PWD/Grammar/Grammar.cf
+     $PWD/../Grammar/Grammar.cf
 
-mv $PWD/$module/AbsGrammar.hs    library/$module/AbsGrammar.hs
-mv $PWD/$module/ErrM.hs          library/$module/ErrM.hs
-mv $PWD/$module/LayoutGrammar.hs library/$module/LayoutGrammar.hs
-mv $PWD/$module/LexGrammar.x     library/$module/LexGrammar.x
-mv $PWD/$module/ParGrammar.y     library/$module/ParGrammar.y
+mv $PWD/$module/AbsGrammar.hs    ../library/$module/AbsGrammar.hs
+mv $PWD/$module/ErrM.hs          ../library/$module/ErrM.hs
+mv $PWD/$module/LayoutGrammar.hs ../library/$module/LayoutGrammar.hs
+mv $PWD/$module/LexGrammar.x     ../library/$module/LexGrammar.x
+mv $PWD/$module/ParGrammar.y     ../library/$module/ParGrammar.y
 
 rm -rf $PWD/Language
 

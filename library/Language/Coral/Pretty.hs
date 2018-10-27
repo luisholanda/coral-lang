@@ -1,2 +1,2 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Language.Coral.Syntax.Pretty where
+module Language.Coral.Pretty where

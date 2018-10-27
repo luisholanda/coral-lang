@@ -2,9 +2,6 @@
 # ==================================
 
 steps:
-  - unicode_syntax:
-      add_language_pragma: true
-
   - simple_align:
       cases: true
       top_level_patterns: true
@@ -26,9 +23,6 @@ steps:
       remove_redundant: true
 
   - trailing_whitespace: {}
-
-  - unicode_syntax:
-      add_language_pragma: false
     
 columns: 80
 

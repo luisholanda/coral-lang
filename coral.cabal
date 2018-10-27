@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3630325ab3341bf11e2bde915058dd35d8771ae224240395682b145d4192b8cc
+-- hash: 6e670ce6f48683882673737ff95090a7e7e8b8ec695b094e58616804e7b25b3b
 
 name:           coral
 version:        0.1.0
@@ -27,17 +27,17 @@ source-repository head
 
 library
   exposed-modules:
-      Language.Coral.Syntax.AST
-      Language.Coral.Syntax.Parser
-      Language.Coral.Syntax.Parser.AbsGrammar
-      Language.Coral.Syntax.Parser.ErrM
-      Language.Coral.Syntax.Parser.Layout
-      Language.Coral.Syntax.Parser.LayoutGrammar
-      Language.Coral.Syntax.Parser.LexGrammar
-      Language.Coral.Syntax.Parser.ParGrammar
-      Language.Coral.Syntax.Parser.Translate
-      Language.Coral.Syntax.Pretty
-      Language.Coral.Syntax.Pretty.Common
+      Language.Coral.AST
+      Language.Coral.Parser
+      Language.Coral.Parser.AbsGrammar
+      Language.Coral.Parser.ErrM
+      Language.Coral.Parser.Layout
+      Language.Coral.Parser.LayoutGrammar
+      Language.Coral.Parser.LexGrammar
+      Language.Coral.Parser.ParGrammar
+      Language.Coral.Parser.Translate
+      Language.Coral.Pretty
+      Language.Coral.Pretty.Common
   other-modules:
       Paths_coral
   hs-source-dirs:
