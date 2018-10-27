@@ -1,9 +1,10 @@
 comment ";;";
+comment "--" "--";
 
 layout ":";
 
 entrypoints Program, IndentLine, Statement;
-Prog. Program ::= [Definition];
+Prog. Program ::= Header [Definition];
 
 token Con upper (letter | digit | '_' | '-' | '\'')*;
 token Gen ('\'' lower (lower | digit)*);
@@ -29,9 +30,25 @@ ByteStr. STRING3  ::= "b" STRING;
 SplitStr. STRING4 ::= STRING4 STRING;
 coercions STRING 4;
 
+ModuleName. ModuleName ::= NAME;
+separator nonempty ModuleName "::";
 
-rules Definition ::= "pub" AsyncDef | "pub" FuncDef | "pub" TypeDef | "pub" DataDef
-                   | AsyncDef | FuncDef | TypeDef | DataDef;
+Local.     Name ::= NAME;
+Qualified. Name ::= [ModuleName] "::" NAME;
+
+ExportName. ExportName ::= NAME;
+separator ExportName ",";
+
+
+rules Header ::= "module" [ModuleName]
+               | "module" [ModuleName] "exports" "(" [ExportName] ")";
+
+-- Imports
+rules Import ::= "use" [ModuleName]
+               | "use" [ModuleName] "as" NAME;
+
+
+rules Definition ::= AsyncDef | FuncDef | TypeDef | DataDef;
 separator Definition "";
 
 Suite. Suite ::= ":" "{" [Statement] "}";
@@ -51,9 +68,13 @@ rules IndentLine ::= "def" NAME "(" [Parameter] ")" "=>" Type ":"
                    | "type" TypeName ":"
                    | "data" TypeName ":";
 
+TLocal.     TName ::= Con;
+TQualified. TName ::= [ModuleName] "::" Con;
+
+
 MutType.      Type ::= "mut" Type1;
-GenericType.  Type1 ::= Con "[" [Type] "]";
-ConcreteType. Type2 ::= Con;
+GenericType.  Type1 ::= TName "[" [Type] "]";
+ConcreteType. Type2 ::= TName;
 ParamType.    Type3 ::= Gen;
 FunType.      Type4 ::= "(" [Type] ")" "=>" Type;
 separator Type ",";
@@ -84,7 +105,6 @@ Term.    Constructor1 ::= Con;
 coercions Constructor 1;
 separator nonempty Constructor ";";
 
-
 Field. Field ::= NAME ":" Type;
 rules CField ::= Type | Field;
 
@@ -100,7 +120,6 @@ separator nonempty DataField ";";
 Prop. Prop ::= "prop" NAME ":" Type;
 
 -- Statements
-
 Expr.      Statement ::= Expr;
 SFuncDef.  Statement ::= FuncDef;
 SAFuncDef. Statement ::= AsyncDef;
@@ -177,7 +196,6 @@ Eq.    CompOp ::= "==";
 -- Expressions
 Star. StarExpr ::= "*" Expr;
 
--- BoolExpr.  Expr  ::= BoolExpr;
 TryExpr.   Expr  ::= "try" Expr2;
 AwaitExpr. Expr1 ::= "await" Expr;
 OpExpr.    Expr2 ::= Expr2 Op Expr7;
@@ -187,7 +205,9 @@ COpExpr.   Expr5 ::= Expr CompOp Expr;
 LTrue.     Expr6 ::= "True";
 LFalse.    Expr6 ::= "False";
 TestExpr.  Expr7 ::= Test;
-coercions Expr 7;
+CompExpr.  Expr8 ::= Comprehension;
+Literal.   Expr9 ::= Literal;
+coercions Expr 9;
 
 
 -- Expressions Operators
@@ -212,8 +232,32 @@ BitOr.  Op ::= "|";
 APipe.  Op ::= "->";
 Pipe.   Op ::= "|>";
 
-rules Test ::= NAME [Trailer] | NAME | NUMBER | STRING;
+
+-- Literal Lists, Sets and Dicts
+ListLit. Literal ::= "[" [ListTerm] "]";
+SetLit.  Literal ::= "{" [ListTerm] "}";
+DictLit. Literal ::= "{" [DictTerm] "}";
+
+rules ListTerm ::= Expr | "..." Test;
+separator ListTerm ",";
+
+rules DictTerm ::= Test ":" Expr | "..." Test;
+separator DictTerm ",";
+
+-- Comprehensions
+ListComp. Comprehension ::= "[" ListTerm "|" [CompIter] "]";
+DictComp. Comprehension ::= "{" DictTerm "|" [CompIter] "}";
+SetComp.  Comprehension ::= "{" ListTerm "|" [CompIter] "}";
+GenComp.  Comprehension ::= "(" ListTerm "|" [CompIter] ")";
+
+-- Comprehension Iterators
+CompFor.  CompIter ::= [Test] "<-" Expr;
+CompIf.   CompIter ::= BoolExpr;
+separator nonempty CompIter ",";
+
+rules Test ::= Name [Trailer] | Name | NUMBER | STRING;
 separator nonempty Test ",";
+
 
 -- Call, Indexing and Field Access
 rules Trailer ::= "(" [Arg] ")" | "[" Subscript "]" | "." NAME;
@@ -233,7 +277,6 @@ rules Arg ::= Expr
             | "..." Test;
 separator Arg ",";
 
--- Literals
 
 rules TestStarExpr ::= Test | StarExpr;
 separator TestStarExpr ",";

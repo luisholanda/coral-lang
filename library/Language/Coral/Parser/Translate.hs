@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances      #-}
-{-# LANGUAGE KindSignatures         #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE TypeSynonymInstances   #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE KindSignatures        #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
 {-|
   Translates the abstract grammar from the parser to the internal
 representation used by the rest of the code.
@@ -15,9 +15,7 @@ module Language.Coral.Parser.Translate
 where
 
 import           Data.Functor                   ( (<&>) )
-import           Data.List                      ( foldl'
-                                                , partition
-                                                )
+import           Data.List                      ( foldl' )
 import qualified Data.Text                     as T
 import qualified Language.Coral.AST            as AST
 import qualified Language.Coral.Parser.AbsGrammar
@@ -38,7 +36,7 @@ TODO: Convert kind of @to@ to @* -> *@ after we modify "AST" types to be annotat
 class Translatable (from :: * -> *) to where
   {-# MINIMAL translate | partialTranslate #-}
   -- | Hability to translate @from@ to @to@.
-  translate :: forall a. from a -> to
+  translate :: forall a . from a -> to
   translate = maybe (error "Impossible input translation!") id . partialTranslate
 
   -- | Partial translation of @from@ to @to@.
@@ -47,23 +45,24 @@ class Translatable (from :: * -> *) to where
 
 
 instance Translatable AG.Program AST.Module where
-  translate (AG.Prog _ defs) = AST.Module (map translate priv) (map translate pub)
-    where
-      (pub, priv) = partition isPublic defs
+  translate (AG.Prog _ header defs) = AST.Module name exports (map translate defs)
+    where (name, exports) = translate header
 
-      isPublic (AG.Definition1 _ _) = True
-      isPublic (AG.Definition2 _ _) = True
-      isPublic (AG.Definition3 _ _) = True
-      isPublic (AG.Definition4 _ _) = True
-      isPublic _                    = False
+
+instance Translatable AG.Header (AST.ModuleName, AST.Exports) where
+  translate (AG.Header1 _ mns) = (map translate mns, AST.All)
+  translate (AG.Header2 _ mns exps) = (map translate mns, AST.Some $ map translate exps)
+
+
+instance Translatable AG.ModuleName AST.Ident where
+  translate (AG.ModuleName _ name) = translName name
+
+
+instance Translatable AG.ExportName AST.Ident where
+  translate (AG.ExportName _ name) = translName name
 
 
 instance Translatable AG.Definition AST.Statement where
-  translate (AG.Definition1 _ (AG.AsyncDef _ funcDef)) =
-    AST.AsyncFun $ translate funcDef
-  translate (AG.Definition2 _ funcDef) = translate funcDef
-  translate (AG.Definition3 _ typeDef) = AST.TypeD $ translate typeDef
-  translate (AG.Definition4 _ dataDef) = AST.DataD $ translate dataDef
   translate (AG.DefinitionAsyncDef _ (AG.AsyncDef _ funcDef)) =
     AST.AsyncFun $ translate funcDef
   translate (AG.DefinitionFuncDef _ funcDef) = translate funcDef
@@ -100,12 +99,12 @@ instance Translatable AG.Constructor AST.Constructor where
 
 instance Translatable AG.CField AST.Field where
   partialTranslate (AG.CFieldField _ field) = partialTranslate field
-  partialTranslate _ = Nothing
+  partialTranslate _                        = Nothing
 
 
 instance Translatable AG.CField AST.Type where
   partialTranslate (AG.CFieldType _ type') = partialTranslate type'
-  partialTranslate _ = Nothing
+  partialTranslate _                       = Nothing
 
 
 instance Translatable AG.Field AST.Field where
@@ -113,8 +112,8 @@ instance Translatable AG.Field AST.Field where
 
 
 instance Translatable AG.TypeName AST.Type where
-  translate (AG.Name _ con      ) = AST.Type [translCon con]
-  translate (AG.GenName _ con ts) = AST.GenType [translCon con] (map translate ts)
+  translate (AG.Name _ con      ) = AST.Type . AST.Local $ translCon con
+  translate (AG.GenName _ con ts) = AST.GenType (AST.Local $ translCon con) (map translate ts)
 
 
 instance Translatable AG.DataDef AST.DataDef where
@@ -144,10 +143,16 @@ instance Translatable AG.ArgType AST.Type where
 instance Translatable AG.Type AST.Type where
   translate (AG.MutType _ type') = AST.MutType $ translate type'
   translate (AG.GenericType _ type' args) =
-    AST.GenType [translCon type'] (map translate args)
-  translate (AG.ConcreteType _ type') = AST.Type [translCon type']
+    AST.GenType (translate type') (map translate args)
+  translate (AG.ConcreteType _ type') = AST.Type $ translate type'
   translate (AG.ParamType _ type') = AST.FreeType $ translGen type'
   translate (AG.FunType _ args ret) = AST.FunType (map translate args) (translate ret)
+
+
+instance Translatable AG.TName AST.Name where
+  translate (AG.TLocal _ con) = AST.Local (translCon con)
+  translate (AG.TQualified _ modName con) = AST.Qualified (map translate modName)
+                                                          (translCon con)
 
 
 instance Translatable AG.Suite AST.Suite where
@@ -280,6 +285,63 @@ instance Translatable AG.Expr AST.Expr where
   translate (AG.LTrue  _    ) = AST.Bool True
   translate (AG.LFalse _    ) = AST.Bool False
   translate (AG.TestExpr _ t) = translate t
+  translate (AG.CompExpr _ compr) = translate compr
+  translate (AG.Literal _ lit) = translate lit
+
+
+instance Translatable AG.Comprehension AST.Expr where
+  translate (AG.ListComp _ term iters) = AST.ListComp $ AST.Comprehension (translate term)
+                                                                          (joinCompIter $ map translate iters)
+  translate (AG.DictComp _ term iters) = AST.DictComp $ AST.Comprehension (translate term)
+                                                                          (joinCompIter $ map translate iters)
+  translate (AG.SetComp  _ term iters) = AST.SetComp $ AST.Comprehension (translate term)
+                                                                         (joinCompIter $ map translate iters)
+  translate (AG.GenComp  _ term iters) = AST.Generator $ AST.Comprehension (translate term)
+                                                                           (joinCompIter $ map translate iters)
+
+
+joinCompIter :: [AST.CompIter] -> AST.CompFor
+joinCompIter []  = error "List should not be empty."
+joinCompIter cis = case iter of
+  AST.IterFor x -> x
+  AST.IterIf{}  -> error "Comprehensions should start with a iteration."
+ where
+  iter = foldr1 go cis
+  go (AST.IterFor new) acc = AST.IterFor $ new { AST.iters = Just acc }
+  go (AST.IterIf  new) acc = AST.IterIf $ new { AST.ifIters = Just acc }
+
+instance Translatable AG.CompIter AST.CompIter where
+  translate (AG.CompFor _ ts e) = AST.IterFor $ AST.CompFor
+    { AST.async = False -- ^ For now we don't support async in comprehensions.
+    , AST.exprs = map translate ts
+    , AST.inExpr = translate e
+    , AST.iters = Nothing
+    }
+  translate (AG.CompIf _ be) = AST.IterIf $ AST.CompIf (translate be) Nothing
+
+
+instance Translatable AG.ListTerm AST.CompExpr where
+  translate (AG.ListTermExpr _ e) = AST.CompExpr . AST.Item $ translate e
+  translate (AG.ListTerm1 _ t) = AST.CompExpr . AST.Unpacking $ translate t
+
+instance Translatable AG.DictTerm AST.CompExpr where
+  translate = AST.CompDict . translate
+
+
+instance Translatable AG.Literal AST.Expr where
+  translate (AG.ListLit _ terms) = AST.List $ map translate terms
+  translate (AG.SetLit _ terms) = AST.Set $ map translate terms
+  translate (AG.DictLit _ terms) = AST.Dict $ map translate terms
+
+
+instance Translatable AG.ListTerm AST.IterItem where
+  translate (AG.ListTermExpr _ e) = AST.Item $ translate e
+  translate (AG.ListTerm1 _ t) = AST.Unpacking $ translate t
+
+
+instance Translatable AG.DictTerm AST.DictItem where
+  translate (AG.DictTerm1 _ t e) = AST.DictMappingPair (translate t) (translate e)
+  translate (AG.DictTerm2 _ t) = AST.DictUnpacking $ translate t
 
 
 instance Translatable AG.Op AST.Op where
@@ -317,11 +379,11 @@ instance Translatable AG.CompOp AST.Op where
 
 
 instance Translatable AG.Test AST.Expr where
-  translate (AG.TestNAME   _ name  ) = AST.Var $ translName name
+  translate (AG.TestName  _ name  )  = AST.Var $ translate name
   translate (AG.TestNUMBER _ num   ) = AST.Num $ translate num
   translate (AG.TestSTRING _ str   ) = AST.String $ translate str
   translate (AG.Test1 _ name trails) = foldl' translTrailer
-                                               (AST.Var $ translName name)
+                                               (AST.Var $ translate name)
                                                trails
     where
       translTrailer :: AST.Expr -> AG.Trailer a -> AST.Expr
@@ -367,6 +429,11 @@ instance Translatable AG.STRING AST.Str where
   translate (AG.FmtStr  _ str       ) = AST.FormatStr $ translate str
   translate (AG.ByteStr _ str       ) = AST.ByteStr $ translate str
   translate (AG.SplitStr _ str1 str2) = AST.SplitStr (translate str1) (translate str2)
+
+
+instance Translatable AG.Name AST.Name where
+  translate (AG.Local _ name) = AST.Local $ translName name
+  translate (AG.Qualified _ modName name) = AST.Qualified (map translate modName) (translName name)
 
 
 -- TODO: Change these to instances of @Translatable@ after add annotations to the types.

@@ -1,22 +1,22 @@
 #!/bin/bash
 module=Language/Coral/Parser
 grammar=Grammar/Grammar.cf
+library=library
 
 if [ ! -f $grammar ]; then
   grammar=../$grammar
+  library=../$library
 fi
-
-echo $PWD
 
 bnfc -p Language.Coral.Parser \
      --haskell --ghc --functor \
      $grammar
 
-mv $PWD/$module/AbsGrammar.hs    ../library/$module/AbsGrammar.hs
-mv $PWD/$module/ErrM.hs          ../library/$module/ErrM.hs
-mv $PWD/$module/LayoutGrammar.hs ../library/$module/LayoutGrammar.hs
-mv $PWD/$module/LexGrammar.x     ../library/$module/LexGrammar.x
-mv $PWD/$module/ParGrammar.y     ../library/$module/ParGrammar.y
+mv $PWD/$module/AbsGrammar.hs    $library/$module/AbsGrammar.hs
+mv $PWD/$module/ErrM.hs          $library/$module/ErrM.hs
+mv $PWD/$module/LayoutGrammar.hs $library/$module/LayoutGrammar.hs
+mv $PWD/$module/LexGrammar.x     $library/$module/LexGrammar.x
+mv $PWD/$module/ParGrammar.y     $library/$module/ParGrammar.y
 
 rm -rf $PWD/Language
 

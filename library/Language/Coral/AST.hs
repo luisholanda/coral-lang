@@ -9,14 +9,22 @@ newtype Ident = Ident
   } deriving (Eq, Ord, Show, Typeable, Data)
 
 data Module =
-  Module { private :: Suite -- private declarations
-         , public  :: Suite -- exposed declarations
+  -- TODO: Convert definitions to a HashMap
+  Module { modName :: ModuleName -- ^ Module name
+         , exports :: Exports -- ^ Exported names
+         , definitions :: Suite -- ^ List of definitions
          }
+  deriving (Eq, Ord, Show, Typeable, Data)
+
+data Exports = All | Some [Ident]
   deriving (Eq, Ord, Show, Typeable, Data)
 
 type Suite = [Statement]
 
-type DottedName = [Ident]
+type ModuleName = [Ident]
+
+data Name = Local Ident | Qualified ModuleName Ident
+  deriving (Eq, Ord, Show, Typeable, Data)
 
 data TypeDef
   = ADT { typeName     :: Type
@@ -92,11 +100,6 @@ data Statement
   | Assert Expr
   deriving (Eq, Ord, Show, Typeable, Data)
 
-data Decorator = Decorator
-  { decName :: DottedName
-  , args    :: [Argument]
-  } deriving (Eq, Ord, Show, Typeable, Data)
-
 data Parameter
   = Param { paramName    :: Ident
           , paramType    :: Type
@@ -129,8 +132,8 @@ data Comprehension = Comprehension
   } deriving (Eq, Ord, Show, Typeable, Data)
 
 data CompExpr
-  = CompExpr Expr
-  | CompDict DictKeyDatumList
+  = CompExpr IterItem
+  | CompDict DictItem
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data CompFor = CompFor
@@ -165,7 +168,7 @@ data Number
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Expr
-  = Var Ident
+  = Var Name
   | Num Number
   | Bool Bool
   | None
@@ -187,17 +190,17 @@ data Expr
         Ident
   | Lambda [Parameter]
            Expr
-  | Tuple [Expr]
+  | Tuple [IterItem]
   | Yield (Maybe YieldArg)
   | Slice (Maybe Expr) (Maybe Expr) (Maybe Expr)
   | Generator Comprehension
   | Await Expr
   | TryE Expr
   | ListComp Comprehension
-  | List [Expr]
-  | Dict [DictKeyDatumList]
+  | List [IterItem]
+  | Dict [DictItem]
   | DictComp Comprehension
-  | Set [Expr]
+  | Set [IterItem]
   | SetComp Comprehension
   | Starred Expr
   | Paren Expr
@@ -208,15 +211,20 @@ data YieldArg
   | YieldExpr Expr
   deriving (Eq, Ord, Show, Typeable, Data)
 
-data DictKeyDatumList
+data IterItem
+  = Item Expr
+  | Unpacking Expr
+  deriving (Eq, Ord, Show, Typeable, Data)
+
+data DictItem
   = DictMappingPair Expr
                     Expr
   | DictUnpacking Expr
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Type
-  = Type DottedName
-  | GenType DottedName [Type]
+  = Type Name
+  | GenType Name [Type]
   | FunType [Type] Type
   | ArgsType Type
   | FreeType Ident
