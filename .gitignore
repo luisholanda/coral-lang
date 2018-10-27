@@ -1,6 +1,5 @@
-library/Language/Coral/Syntax/Parser/*Grammar*
-
-
+library/Language/Coral/Parser/*Grammar*
+library/Language/Coral/Parser/ErrM.hs
 
 
 dist
@@ -29,4 +28,3 @@ cabal.project.local~
 *.bak
 *.txt
 *.info
-library/Language/Coral/Syntax/Parser/ErrM.hs
