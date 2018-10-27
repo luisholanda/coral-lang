@@ -18,16 +18,6 @@ type Suite = [Statement]
 
 type DottedName = [Ident]
 
-data ImportItem = ImportItem
-  { itemName :: DottedName
-  , asName   :: Maybe Ident
-  } deriving (Eq, Ord, Show, Typeable, Data)
-
-data FromItems
-  = ImportAll
-  | OnlyItems [Ident]
-  deriving (Eq, Ord, Show, Typeable, Data)
-
 data TypeDef
   = ADT { typeName     :: Type
         , constructors :: [Constructor]}
@@ -57,8 +47,7 @@ data DataField
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Statement
-  = Import { importedItems :: [ImportItem] }
-  | TypeD TypeDef
+  = TypeD TypeDef
   | DataD DataDef
   | While { cond  :: Expr
           , body  :: Suite
