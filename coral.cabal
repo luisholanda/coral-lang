@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6e670ce6f48683882673737ff95090a7e7e8b8ec695b094e58616804e7b25b3b
+-- hash: 76e0044eb22aae723555bbd2151205ae56bfa53ea53f690f38ee43acd011d909
 
 name:           coral
 version:        0.1.0
@@ -27,34 +27,39 @@ source-repository head
 
 library
   exposed-modules:
+      Data.ByteString.Read.Class
+      Data.ByteString.Read.Fractional
+      Data.ByteString.Read.Integral
       Language.Coral.AST
+      Language.Coral.Lexer
+      Language.Coral.Lexer.Common
+      Language.Coral.Lexer.InputStream
+      Language.Coral.Lexer.Layout
+      Language.Coral.Lexer.Lexer
+      Language.Coral.Lexer.Token
       Language.Coral.Parser
-      Language.Coral.Parser.AbsGrammar
-      Language.Coral.Parser.ErrM
-      Language.Coral.Parser.Layout
-      Language.Coral.Parser.LayoutGrammar
-      Language.Coral.Parser.LexGrammar
-      Language.Coral.Parser.ParGrammar
-      Language.Coral.Parser.Translate
-      Language.Coral.Pretty
-      Language.Coral.Pretty.Common
+      Language.Coral.Parser.Error
+      Language.Coral.Parser.Monad
+      Language.Coral.SrcSpan
   other-modules:
       Paths_coral
   hs-source-dirs:
       library
   default-extensions: OverloadedStrings UnicodeSyntax ScopedTypeVariables DeriveDataTypeable DeriveFunctor BangPatterns LambdaCase NamedFieldPuns
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wnoncanonical-monad-instances
+  build-tools:
+      alex
+    , happy
   build-depends:
       array
     , base
     , bytestring
     , containers
+    , lens
     , mtl
     , prettyprinter
     , text
-  build-tools:
-      alex
-    , happy
+    , utf8-string
   default-language: Haskell2010
 
 executable coral
@@ -68,7 +73,6 @@ executable coral
   build-depends:
       base
     , coral
-    , pretty-simple
     , text
   default-language: Haskell2010
 
@@ -76,6 +80,7 @@ test-suite coral-test-suite
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Language.Coral.Lexer
       Paths_coral
   hs-source-dirs:
       test-suite

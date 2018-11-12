@@ -36,9 +36,11 @@ library:
     - base
     - containers
     - bytestring
+    - utf8-string
     - prettyprinter
     - array
     - mtl
+    - lens
   source-dirs: library
   default-extensions:
     - DeriveDataTypeable
@@ -54,7 +56,6 @@ executables:
     dependencies:
       - base
       - coral
-      - pretty-simple
     ghc-options:
       - -rtsopts
       - -threaded
