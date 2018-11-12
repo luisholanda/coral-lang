@@ -12,6 +12,7 @@ data Module =
   -- TODO: Convert definitions to a HashMap
   Module { modName :: ModuleName -- ^ Module name
          , exports :: Exports -- ^ Exported names
+         , imports :: [Import] -- ^ List of imported modules
          , definitions :: Suite -- ^ List of definitions
          }
   deriving (Eq, Ord, Show, Typeable, Data)
@@ -19,11 +20,14 @@ data Module =
 data Exports = All | Some [Ident]
   deriving (Eq, Ord, Show, Typeable, Data)
 
+data Import = Import ModuleName | Qualified ModuleName Ident
+  deriving (Eq, Ord, Show, Typeable, Data)
+
 type Suite = [Statement]
 
 type ModuleName = [Ident]
 
-data Name = Local Ident | Qualified ModuleName Ident
+data Name = Local Ident | External ModuleName Ident
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data TypeDef
@@ -106,7 +110,6 @@ data Parameter
           , paramDefault :: Maybe Expr }
   | VarParam { paramName :: Ident
              , paramType :: Type }
-  | EndPositional
   deriving (Eq, Ord, Show, Typeable, Data)
 
 data Argument
