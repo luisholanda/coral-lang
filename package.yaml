@@ -39,8 +39,10 @@ library:
     - utf8-string
     - prettyprinter
     - array
+    - vector
     - mtl
     - lens
+    - hashable
   source-dirs: library
   default-extensions:
     - DeriveDataTypeable

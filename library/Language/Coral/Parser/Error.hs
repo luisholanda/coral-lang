@@ -3,8 +3,8 @@ module Language.Coral.Parser.Error where
 import           Control.Exception
 import           Data.Text.Prettyprint.Doc
 
+import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.SrcSpan
 
 
 data ParserError

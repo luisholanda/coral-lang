@@ -2,8 +2,8 @@
     Fixes the layout of the stream of tokens emited by Alex
 to account for the following rules:
 
-  * Any line finishing with either an operator or a dot starts
-    an implicit line continuation, e.g:
+  1. Any line finishing with either an operator or a dot starts
+     an implicit line continuation, e.g:
 
 @
     example = [1, 2, 3].
@@ -11,8 +11,8 @@ to account for the following rules:
       reduce(_ + _)
 @
 
-  * Any indented line starting with either an operator or a dot
-    starts an implicit line continuation.
+  2. Any indented line starting with either an operator or a dot
+     starts an implicit line continuation.
 
 @
     example = [1, 2, 3]
@@ -20,26 +20,45 @@ to account for the following rules:
       .reduce(_ + _)
 @
 
-   As stated in @'Language.Coral.Lexer.Common.indentation'@ function,
-the first rule can be easily resolved by holding the last code-only
-token emitted, i.e. not accounting comments or layout tokens, and
-making the check when we would emit the indentation token.
-   We prefer to put the logic for this rule here to not increase more
-the size of the parser's state record. As we're already making a pass
-over the token's stream to solve the second rule, this will not be a
-problem in terms of performance.
+    While we could solve the first rule in the Alex lexer, we prefer
+to put the logic for this rule here to not increase more the size of
+the parser's state record. As we're already making a pass over the
+token's stream to solve the second rule, this will not be a problem
+in terms of performance.
 
-   The second one is basicaly check if the first token of a indented
+    The second one is basicaly check if the first token of a indented
 line is a operator or a dot. This check, again, should be made when
 we encounter a @'TNewLine'@ followed by @'TIndent'@, which represents
 a indented line.
+
+== Coral Layout Rules
+
+    As Coral is a indentation based language, we should define the rules
+to the layout of the language. Theses rules afect both the definition
+of new blocks and the end of an expression.
+    A block is any set of lines that have the same indentation.
+    The end of an expression is more complicated to define, as an expression
+can span over multiple lines.
+
+=== Implicit Lines
+
+    The rules for implicit lines continuation are the following:
+
+    1. Any lines between matching brackets are considered to be of the same
+logical line.
+
+    2. If a line ends (ignoring comments) with an operator or a dot, the
+next line should be indented and is considered of the same logical line.
+
+    3. If a line is indented relative to the previous one /and/ starts with
+an operator or a dot, it should be considered of the same logical line.
 -}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE PatternSynonyms #-}
 module Language.Coral.Lexer.Layout (fixLayout) where
 
 import           Language.Coral.Lexer.Token
-import           Language.Coral.SrcSpan
+import           Language.Coral.Data.SrcSpan
 
 
 -- | Checks if a Token is a code token.

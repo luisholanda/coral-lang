@@ -3,15 +3,15 @@ module Language.Coral.Parser.Monad where
 
 import           Control.Lens
 import           Control.Monad.Except
-import           Control.Monad.State
+import           Control.Monad.State.Strict
 import           Data.Maybe                     ( listToMaybe )
 import           Data.Text.Prettyprint.Doc
 import           Data.Text.Prettyprint.Doc.Render.String
 
+import           Language.Coral.Data.InputStream
+import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Lexer.InputStream
 import           Language.Coral.Parser.Error
-import           Language.Coral.SrcSpan
 
 
 internalError :: forall a s . Doc s -> P a

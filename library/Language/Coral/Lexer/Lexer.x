@@ -17,11 +17,11 @@ import           Data.ByteString.Read.Integral
 import qualified Data.Map                         as Map
 import           Data.Proxy
 
+import           Language.Coral.Data.InputStream (peekBytes)
+import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Common
-import           Language.Coral.Lexer.InputStream (peekBytes)
 import           Language.Coral.Lexer.Token
 import           Language.Coral.Parser.Monad
-import           Language.Coral.SrcSpan
 }
 
 $lf              = \n
@@ -39,9 +39,11 @@ $string_char     = [^ $eol \" \\]
 $bytestring_char = \0-\127 # [$eol \" \\]
 $not_quote       = [. \n] # \"
 
-@xid_start       = [a-zA-Z]
-@xid_continue    = @xid_start | [$dec _ ']
+@xid_start       = [a-z]
+@xid_big_start   = [A-Z]
+@xid_continue    = @xid_start | @xid_big_start | [$dec _ ']
 @ident           = @xid_start @xid_continue*
+@typename        = @xid_big_start @xid_continue*
 
 @decimal = $non_zero_dec $dec*
 
@@ -107,10 +109,9 @@ tokens :-
     "}"                          { closeParen TRCurly }
 
     "*"                          { symbol TMult }
-    "@"                          { symbol TMatMult }
     "/"                          { symbol TDiv }
     "//"                         { symbol TFDiv }
-    "**"                         { symbol TPow }
+    "^"                          { symbol TPow }
     "%"                          { symbol TMod }
     "+"                          { symbol TAdd }
     "-"                          { symbol TMinus }
@@ -118,8 +119,8 @@ tokens :-
     ">>"                         { symbol TRShift }
     "&"                          { symbol TBitAnd }
     "|"                          { symbol TBitOr }
-    "^"                          { symbol TBitXor }
     "->"                         { symbol TArrow }
+    "=>"                         { symbol TFatArrow }
     "|>"                         { symbol TPipe }
 
     "not in"                     { symbol TNotIn }
@@ -140,6 +141,7 @@ tokens :-
     ":"                          { symbol TColon }
     "="                          { symbol TAssign }
     ".="                         { symbol TMutAssign }
+    ":="                         { symbol TDefine }
 }
 
 
@@ -226,9 +228,6 @@ keywords = Map.fromList [ ("False", TFalse)
                         , ("exports", TExports)
                         , ("use", TUse)
                         , ("as", TAs)
-                        , ("async", TAsync)
-                        , ("await", TAwait)
-                        , ("def", TDef)
                         , ("if", TIf)
                         , ("elif", TElif)
                         , ("else", TElse)
@@ -236,12 +235,17 @@ keywords = Map.fromList [ ("False", TFalse)
                         , ("for", TFor)
                         , ("in", TIn)
                         , ("try", TTry)
-                        , ("except", TExcept)
+                        , ("catch", TCatch)
                         , ("finally", TFinally)
                         , ("with", TWith)
+                        , ("type", TType)
+                        , ("alias", TAlias)
+                        , ("effect", TEffect)
+                        , ("handler", THandler)
+                        , ("forall", TForall)
+                        , ("∀", TForall)
                         , ("mut",TMut)
                         , ("break", TBreak)
-                        , ("pass", TPass)
                         , ("continue", TContinue)
                         ]
 

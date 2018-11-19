@@ -1,4 +1,4 @@
-module Language.Coral.SrcSpan where
+module Language.Coral.Data.SrcSpan where
 
 import           Data.Data
 import           Data.Text.Prettyprint.Doc

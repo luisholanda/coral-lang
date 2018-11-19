@@ -6,12 +6,13 @@ where
 
 import           Prelude                 hiding ( lex )
 
-import           Language.Coral.Lexer.InputStream
+import           Language.Coral.Data.InputStream
+import           Language.Coral.Data.SrcSpan    ( initialSrcLoc )
+import           Language.Coral.Lexer.Layout    ( fixLayout )
 import           Language.Coral.Lexer.Lexer     ( lexToken
                                                 , initStartCodeStack
                                                 )
 import           Language.Coral.Lexer.Token
-import           Language.Coral.SrcSpan         ( initialSrcLoc )
 import           Language.Coral.Parser.Error
 import           Language.Coral.Parser.Monad
 
@@ -25,7 +26,7 @@ lex inp = execParser lexer $ initLexState inp
 
 
 lexer :: P [Token]
-lexer = loop []
+lexer = fixLayout <$> loop []
  where
   loop toks = do
     tok <- lexToken

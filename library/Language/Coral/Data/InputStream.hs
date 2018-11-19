@@ -1,4 +1,4 @@
-module Language.Coral.Lexer.InputStream
+module Language.Coral.Data.InputStream
   ( Word8
   , InputStream(..)
   , readInputStream

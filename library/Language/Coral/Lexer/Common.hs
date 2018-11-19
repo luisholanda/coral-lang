@@ -5,11 +5,11 @@ import           Control.Exception              ( throw )
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Internal      as B
 
-import           Language.Coral.Lexer.InputStream
+import           Language.Coral.Data.InputStream
+import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
 import           Language.Coral.Parser.Error
 import           Language.Coral.Parser.Monad
-import           Language.Coral.SrcSpan
 
 
 data BeginOf = BeginFile | BeginLine deriving Eq
@@ -38,18 +38,7 @@ dedentation lexToken s _len _str = do
     GT -> spanError s "indentation error"
 
 
-{- | Hold's the logic behind the emission of indentation tokens.
-    Basically we emit a new @TIndent@ when we're not in a implicit line,
-i.e @length parenStack > 0@.
-    Actually for a complete logic of the indentation we would need to
-know the last code token of the line, as a line ending with a operator
-or a @.@ start a implicit line continuation, or the first token of the
-next line, as a line starting with a operator o a @.@ also start a
-implicit line continuation.
-    While is possible to incorporate the first into @ParserState@, the
-second is not. So, we prefer to put these two parts of the logic in
-an isolated pass over the stream of tokens.
--}
+-- | Hold's the logic behind the emission of indentation and new line tokens.
 indentation :: P Token -> Int -> BeginOf -> Action
 -- Check if we are at EOF. If yes, we need to generate a
 -- newline in case we came here from BeginLine.
@@ -60,15 +49,14 @@ indentation lexToken _dedent bo _loc _len bs | inputStreamEmpty bs =
 indentation lexToken dedent bo loc _len _bs = do
   popStartCode
   parenDepth <- getParenStackDepth
-  -- Emit @TIndent@ only if we're not in an implicit line.
   if parenDepth > 0
     then lexToken
     else do
       top <- getIndent
       case startCol loc `compare` top of
         EQ -> case bo of
-          BeginFile -> lexToken
           BeginLine -> newlineToken
+          BeginFile -> lexToken
         LT -> pushStartCode dedent >> newlineToken
         GT -> pushIndent (startCol loc) >> pure indentToken
   where indentToken = TIndent loc
@@ -155,7 +143,7 @@ matchParen TLParen{} TRParen{} = True
 matchParen _         _         = False
 
 
-{- Functionality required by Alex -}
+{-| = Functionality required by Alex -}
 
 type AlexInput = (SrcLoc,      -- ^ Current position
                   InputStream) -- ^ Current input stream
@@ -183,6 +171,6 @@ alexMove _    = incColumn 1
 
 lexicalError :: P a
 lexicalError = do
-  loc    <- use location
-  (c, _) <- input `uses` takeChar
+  loc <- use location
+  c   <- use $ input . to takeChar . _1
   throw $ UnexpectedChar c loc

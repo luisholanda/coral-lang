@@ -1,48 +1,73 @@
-;; a->f(b) == f(a, b)
-;; a |> f(b) == f(b)(a)
-pub def example(arg1: Int, arg2: Int, ...args: *Int) => Int:
+module test
+
+
+use a
+use a:test
+use a:c
+use a:bs:c as c
+use python:multiprocessing
+use std:result as res
+
+
+example : (arg1: Int, arg2: Int, ...args: *Int) -> Int
+example(arg1, arg2, ...args) :=
     var = foo(arg1.field) |> bar |> test
 
     for arg in args:
-        print(arg)
+        std:print(arg)
 
     return var
 
 
-def mut-example(arg1: mut 't1, ...args: *'t2) => Void:
-    mut var = 0
+mut-example : forall t1, t2 . (arg1: t1, ...args: *t2) -> t1
+mut-example(arg1, ...arg) :=
+    mut var = arg1
 
     for arg in args:
         var .= foo(var, ...arg)
 
-    arg1.field .= var
+    return var
 
 
-pub type List['a]:
-    Cons('a, List['a])
-    None
 
-type ARecord:
-    field1: Int
-    field2: Float
+type List a := Nil | Cons(a, List a)
+alias IntList := List Int
 
-data Stack['a]:
-    prop v: mut List['a]
+record MyRecord :=
+  foo : Int
+  bar : List Int
 
-    def pop() => Void:
-        pass
 
-def exception-example() => Void:
-    def a-handler(excp: ValueError) => Void:
-        print("This shouldn't happen!")
+effect Logging r :=
+  debug : (msg: String) -> Eff (Logging | r) Void
+  info : (msg: String) -> Eff (Logging | r) Void
+  warning : (msg: String) -> Eff (Logging | r) Void
+  error : (msg: String) -> Eff (Logging | r) Void
 
-    def another-handler(excp: NetworkError) => Void:
-        print("This sucks!")
+
+handler IOLogger for Logger IO :=
+  debug(msg) := std:print("DEBUG:", msg)
+  info(msg) := std:print("INFO:", msg)
+  warning(msg) := std:print("WARN:", msg)
+  error(msg) := std:print("ERROR:", msg)
+
+
+Exception-example : () -> IO Void
+exception-example() :=
+    a-handler : (excp: ValueError) -> IO Void
+    a-handler(excp) :=
+        std:print("This shouldn't happen with asdffsdfsdfsdfsdfsfsfsfsdfsdfsdfsdfsfsdsdfs!")
+
+    another-handler : (excp: NetworkError) -> IO Void
+    another-handler(excp) :=
+        std:print("This sucks!")
 
     try with a-handler, another-handler:
         return this-will-fail()
-    except:
-        print("A unexpected error")
+    catch:
+        std:print("A unexpected error")
 
-    ;; wrapping a exception in Option
-    var = await try test()
+    -- wrapping an exception in Result
+    var = try test()
+    -- wrapping an exception in Option
+    var = try? test()

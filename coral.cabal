@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 76e0044eb22aae723555bbd2151205ae56bfa53ea53f690f38ee43acd011d909
+-- hash: 26c4489666aedf1422553ec964b3fb0b462846214bd50de1f490f3c648d001c0
 
 name:           coral
 version:        0.1.0
@@ -30,17 +30,20 @@ library
       Data.ByteString.Read.Class
       Data.ByteString.Read.Fractional
       Data.ByteString.Read.Integral
-      Language.Coral.AST
+      Language.Coral.Data.Ident
+      Language.Coral.Data.InputStream
+      Language.Coral.Data.SrcSpan
+      Language.Coral.Data.Supplier
       Language.Coral.Lexer
       Language.Coral.Lexer.Common
-      Language.Coral.Lexer.InputStream
       Language.Coral.Lexer.Layout
       Language.Coral.Lexer.Lexer
       Language.Coral.Lexer.Token
       Language.Coral.Parser
       Language.Coral.Parser.Error
       Language.Coral.Parser.Monad
-      Language.Coral.SrcSpan
+      Language.Coral.Syntax.AST
+      Language.Coral.Syntax.Types
   other-modules:
       Paths_coral
   hs-source-dirs:
@@ -55,11 +58,13 @@ library
     , base
     , bytestring
     , containers
+    , hashable
     , lens
     , mtl
     , prettyprinter
     , text
     , utf8-string
+    , vector
   default-language: Haskell2010
 
 executable coral
