@@ -1,35 +1,26 @@
-# [lang][]
+# Coral Language
 
-Thanks for starting a project with Haskeleton! If you haven't heard of it
-before, I suggest reading the introductory blog post. You can find it here:
-<http://taylor.fausak.me/2014/03/04/haskeleton-a-haskell-project-skeleton/>.
+Repository for the Coral language, a imperative pure functional language that's
+run in the Python VM.
 
-Before you get started, there are a few things that this template couldn't
-provide for you. You should:
+I'm developing this as a fun side project, so the things will be changing
+slowly. I'm also using this to learn about the formalisms of a pure functional
+language, type systems and compilers, so expect **very** wrong things at times :+1:.
 
--   Add a synopsis to `package.yaml`. It should be a short (one sentence)
-    explanation of your project.
+The objective is to implement a language with the following features:
 
--   Add a description to `package.yaml`. This can be whatever you want it to
-    be.
+- A modern type system, with typeclasses, parametric polymorphism and all that stuff;
+- Linear Types;
+- A nice effect system;
+- A custom RTS concurrent with the Python VM RTS.
 
--   Add a category to `package.yaml`. A list of categories is available on
-    Hackage at <http://hackage.haskell.org/packages>.
+The language is somewhat a mix of Python, Rust and Haskell into a unique
+language. A exemple of what the language looks like can be seem in the
+`test.cor` file.
 
--   Rename `library/Example.hs` to whatever you want your top-level module to
-    be called. Typically this is the same as your package name but in
-    `CamelCase` instead of `kebab-case`.
+## Development
 
-    -   Don't forget to rename the reference to it in
-        `executable/Main.hs`!
-
--   If you are on an older version of Stack (<1.0.4), delete `package.yaml` and
-    remove `/*.cabal` from your `.gitignore`.
-
-Once you've done that, start working on your project with the Stack commands
-you know and love.
-
-``` sh
+```sh
 # Build the project.
 stack build
 
@@ -42,7 +33,3 @@ stack bench
 # Generate documentation.
 stack haddock
 ```
-
-Thanks again, and happy hacking!
-
-[lang]: https://github.com/githubuser/lang
