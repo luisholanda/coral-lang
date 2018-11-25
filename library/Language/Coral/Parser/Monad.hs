@@ -37,8 +37,7 @@ data ParserState =
   , _parenStack :: [Token]   -- ^ A stack of parens and brackets for indentation handling
   , _lastEOL :: !SrcSpan     -- ^ Location of the last end-of-line encountered
   , _comments :: [Token]     -- ^ Accumulated comments
-  }
-  deriving Show
+  } deriving Show
 makeClassy ''ParserState
 
 
@@ -54,19 +53,19 @@ execParserKeepComments parser = evalStateT $ do
   pure (result, coms)
 
 
-{-# INLINE runParser #-}
 runParser :: forall a . P a -> ParserState -> Either ParserError (a, ParserState)
 runParser = runStateT
+{-# INLINE runParser #-}
 
 
-{-# INLINE returnP #-}
 returnP :: forall a . a -> P a
 returnP = pure
+{-# INLINE returnP #-}
 
 
-{-# INLINE thenP #-}
 thenP :: forall a b . P a -> (a -> P b) -> P b
 thenP = (>>=)
+{-# INLINE thenP #-}
 
 
 initToken :: Token

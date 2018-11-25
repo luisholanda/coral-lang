@@ -8,103 +8,105 @@ import           Language.Coral.Data.SrcSpan
 
 data Token
   -- Whitespaces
-  = TIndent { tSpan :: !SrcSpan } -- ^ Indentation: increase
-  | TDedent { tSpan :: !SrcSpan } -- ^ Indentation: decrease
-  | TNewLine { tSpan :: !SrcSpan } -- ^ New line
+  = TIndent        { tSpan :: !SrcSpan } -- ^ Indentation: increase
+  | TDedent        { tSpan :: !SrcSpan } -- ^ Indentation: decrease
+  | TNewLine       { tSpan :: !SrcSpan } -- ^ New line
 
   -- Comments
-  | TComLine { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Single line comment
-  | TComLines { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Multi line comment
+  | TComLine       { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Single line comment
+  | TComLines      { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Multi line comment
 
   -- Identifiers
-  | TIdentifier { tSpan :: !SrcSpan, literal :: {-# UNPACK #-}!ByteString } -- ^ Identifier
-  | TTypeName { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Concrete type name
+  | TIdentifier    { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Identifier
+  | TTypeName      { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Concrete type name
 
   -- Literals
-  | TString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal string
-  | TRawString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal raw string
-  | TByteString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal bytestring
-  | TFmtString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal format string
-  | TRawFmtString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal raw format string
-  | TRawByteString { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString } -- ^ Literal raw bytestring
-  | TInteger { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString, integer :: !Integer } -- ^ Literal integer
-  | TFloat { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString, float :: {-# UNPACK #-} !Double } -- ^ Literal float
-  | TImaginary { tSpan :: !SrcSpan, literal :: {-# UNPACK #-} !ByteString, imaginary :: {-# UNPACK #-} !Double } -- ^ Literal imaginary
-  | TTrue { tSpan :: !SrcSpan }-- ^ Literal @True@
-  | TFalse { tSpan :: !SrcSpan } -- ^ Literal @False@
-  | TNone { tSpan :: !SrcSpan }-- ^ Literal @None@
+  | TString        { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal string
+  | TRawString     { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal raw string
+  | TByteString    { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal bytestring
+  | TFmtString     { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal format string
+  | TRawFmtString  { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal raw format string
+  | TRawByteString { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal raw bytestring
+  | TInteger       { tSpan :: !SrcSpan, literal :: !ByteString, integer :: !Integer } -- ^ Literal integer
+  | TFloat         { tSpan :: !SrcSpan, literal :: !ByteString, float :: {-# UNPACK #-} !Double } -- ^ Literal float
+  | TImaginary     { tSpan :: !SrcSpan, literal :: !ByteString, imaginary :: {-# UNPACK #-} !Double } -- ^ Literal imaginary
+  | TTrue          { tSpan :: !SrcSpan }-- ^ Literal @True@
+  | TFalse         { tSpan :: !SrcSpan } -- ^ Literal @False@
+  | TNone          { tSpan :: !SrcSpan }-- ^ Literal @None@
 
   -- Keywords
-  | TModule { tSpan :: !SrcSpan } -- ^ Keyword \"module\"
-  | TExports { tSpan :: !SrcSpan } -- ^ Keyword \"exports\"
-  | TUse { tSpan :: !SrcSpan } -- ^ Keyword \"use\"
-  | TAs { tSpan :: !SrcSpan } -- ^ Keyword \"as\"
-  | TIf { tSpan :: !SrcSpan } -- ^ Keyword \"if\"
-  | TElif { tSpan :: !SrcSpan } -- ^ Keyword \"elif\"
-  | TElse { tSpan :: !SrcSpan } -- ^ Keyword \"else\"
-  | TWhile { tSpan :: !SrcSpan } -- ^ Keyword \"while\"
-  | TFor { tSpan :: !SrcSpan } -- ^ Keyword \"for\"
-  | TIn { tSpan :: !SrcSpan } -- ^ Keyword \"in\"
-  | TTry { tSpan :: !SrcSpan } -- ^ Keyword \"try\"
-  | TCatch { tSpan :: !SrcSpan } -- ^ Keyword \"catch\"
-  | TFinally { tSpan :: !SrcSpan } -- ^ Keyword \"finally\"
-  | TWith { tSpan :: !SrcSpan } -- ^ Keyword \"with\"
-  | TType { tSpan :: !SrcSpan } -- ^ Keyword \"type\"
-  | TAlias { tSpan :: !SrcSpan } -- ^ Keyword \"alias\"
-  | TRecord { tSpan :: !SrcSpan } -- ^ Keyword \"record\"
-  | TEffect { tSpan :: !SrcSpan } -- ^ Keyword \"effect\"
-  | THandler { tSpan :: !SrcSpan } -- ^  Keyword \"handler\"
-  | TForall { tSpan :: !SrcSpan } -- ^ Keyword \"forall\" or \"∀\"
-  | TMut { tSpan :: !SrcSpan } -- ^ Keyword \"mut\"
-  | TBreak { tSpan :: !SrcSpan } -- ^ Keyword \"break\"
-  | TContinue { tSpan :: !SrcSpan } -- ^ Keyword \"continue\"
+  | TModule        { tSpan :: !SrcSpan } -- ^ Keyword \"module\"
+  | TExports       { tSpan :: !SrcSpan } -- ^ Keyword \"exports\"
+  | TUse           { tSpan :: !SrcSpan } -- ^ Keyword \"use\"
+  | TAs            { tSpan :: !SrcSpan } -- ^ Keyword \"as\"
+  | TIf            { tSpan :: !SrcSpan } -- ^ Keyword \"if\"
+  | TUnless        { tSpan :: !SrcSpan } -- ^  Keyword \"unless\"
+  | TElif          { tSpan :: !SrcSpan } -- ^ Keyword \"elif\"
+  | TElse          { tSpan :: !SrcSpan } -- ^ Keyword \"else\"
+  | TWhile         { tSpan :: !SrcSpan } -- ^ Keyword \"while\"
+  | TUntil         { tSpan :: !SrcSpan } -- ^ Keyword \"until\"
+  | TFor           { tSpan :: !SrcSpan } -- ^ Keyword \"for\"
+  | TIn            { tSpan :: !SrcSpan } -- ^ Keyword \"in\"
+  | TTry           { tSpan :: !SrcSpan } -- ^ Keyword \"try\"
+  | TCatch         { tSpan :: !SrcSpan } -- ^ Keyword \"catch\"
+  | TFinally       { tSpan :: !SrcSpan } -- ^ Keyword \"finally\"
+  | TWith          { tSpan :: !SrcSpan } -- ^ Keyword \"with\"
+  | TType          { tSpan :: !SrcSpan } -- ^ Keyword \"type\"
+  | TAlias         { tSpan :: !SrcSpan } -- ^ Keyword \"alias\"
+  | TRecord        { tSpan :: !SrcSpan } -- ^ Keyword \"record\"
+  | TEffect        { tSpan :: !SrcSpan } -- ^ Keyword \"effect\"
+  | THandler       { tSpan :: !SrcSpan } -- ^  Keyword \"handler\"
+  | TForall        { tSpan :: !SrcSpan } -- ^ Keyword \"forall\" or \"∀\"
+  | TMut           { tSpan :: !SrcSpan } -- ^ Keyword \"mut\"
+  | TBreak         { tSpan :: !SrcSpan } -- ^ Keyword \"break\"
+  | TContinue      { tSpan :: !SrcSpan } -- ^ Keyword \"continue\"
 
   -- Operators
-  | TMult { tSpan :: !SrcSpan } -- ^ Operator \"*\"
-  | TDiv { tSpan :: !SrcSpan } -- ^ Operator \"/\"
-  | TFDiv { tSpan :: !SrcSpan } -- ^ Operator \"//\"
-  | TPow { tSpan :: !SrcSpan } -- ^ Operator \"^\"
-  | TMod { tSpan :: !SrcSpan } -- ^ Operator \"%\"
-  | TAdd { tSpan :: !SrcSpan } -- ^ Operator \"+\"
-  | TMinus { tSpan :: !SrcSpan } -- ^ Operator \"-\"
-  | TLShift { tSpan :: !SrcSpan } -- ^ Operator \"<<\"
-  | TRShift { tSpan :: !SrcSpan } -- ^ Operator \">>\"
-  | TBitAnd { tSpan :: !SrcSpan } -- ^ Operator \"&\"
-  | TBitOr { tSpan :: !SrcSpan } -- ^ Operator \"|\"
-  | TArrow { tSpan :: !SrcSpan } -- ^ Operator \"->\"
-  | TFatArrow { tSpan :: !SrcSpan} -- ^ Oeprator \"=>\"
-  | TPipe { tSpan :: !SrcSpan } -- ^ Operator \"|>\"
+  | TMult          { tSpan :: !SrcSpan } -- ^ Operator \"*\"
+  | TDiv           { tSpan :: !SrcSpan } -- ^ Operator \"/\"
+  | TFDiv          { tSpan :: !SrcSpan } -- ^ Operator \"//\"
+  | TPow           { tSpan :: !SrcSpan } -- ^ Operator \"^\"
+  | TMod           { tSpan :: !SrcSpan } -- ^ Operator \"%\"
+  | TAdd           { tSpan :: !SrcSpan } -- ^ Operator \"+\"
+  | TMinus         { tSpan :: !SrcSpan } -- ^ Operator \"-\"
+  | TLShift        { tSpan :: !SrcSpan } -- ^ Operator \"<<\"
+  | TRShift        { tSpan :: !SrcSpan } -- ^ Operator \">>\"
+  | TBitAnd        { tSpan :: !SrcSpan } -- ^ Operator \"&\"
+  | TBitOr         { tSpan :: !SrcSpan } -- ^ Operator \"|\"
+  | TArrow         { tSpan :: !SrcSpan } -- ^ Operator \"->\"
+  | TFatArrow      { tSpan :: !SrcSpan } -- ^ Oeprator \"=>\"
+  | TPipe          { tSpan :: !SrcSpan } -- ^ Operator \"|>\"
 
   -- Boolean Operators
-  | TNotIn { tSpan :: !SrcSpan } -- ^ Operator \"not in\"
-  | TIs { tSpan :: !SrcSpan } -- ^ Operator \"is\"
-  | TNot { tSpan :: !SrcSpan } -- ^ Operator \"not\"
-  | TAnd { tSpan :: !SrcSpan } -- ^ Operator \"and\"
-  | TOr { tSpan :: !SrcSpan } -- ^ Operator \"or\"
-  | TLt { tSpan :: !SrcSpan } -- ^ Operator \"<\"
-  | TLe { tSpan :: !SrcSpan } -- ^ Operator \"<=\"
-  | TGt { tSpan :: !SrcSpan } -- ^ Operator \">\"
-  | TGe { tSpan :: !SrcSpan } -- ^ Operator \">=\"
-  | TNe { tSpan :: !SrcSpan } -- ^ Operator \"!=\"
-  | TEq { tSpan :: !SrcSpan } -- ^ Operator \"==\"
+  | TNotIn         { tSpan :: !SrcSpan } -- ^ Operator \"not in\"
+  | TIs            { tSpan :: !SrcSpan } -- ^ Operator \"is\"
+  | TNot           { tSpan :: !SrcSpan } -- ^ Operator \"not\"
+  | TAnd           { tSpan :: !SrcSpan } -- ^ Operator \"and\"
+  | TOr            { tSpan :: !SrcSpan } -- ^ Operator \"or\"
+  | TLt            { tSpan :: !SrcSpan } -- ^ Operator \"<\"
+  | TLe            { tSpan :: !SrcSpan } -- ^ Operator \"<=\"
+  | TGt            { tSpan :: !SrcSpan } -- ^ Operator \">\"
+  | TGe            { tSpan :: !SrcSpan } -- ^ Operator \">=\"
+  | TNe            { tSpan :: !SrcSpan } -- ^ Operator \"!=\"
+  | TEq            { tSpan :: !SrcSpan } -- ^ Operator \"==\"
 
-  -- Delimiters
-  | TLParen { tSpan :: !SrcSpan } -- ^ Delimiter \"(\"
-  | TRParen { tSpan :: !SrcSpan } -- ^ Delimiter \")\"
-  | TLBrack { tSpan :: !SrcSpan } -- ^ Delimiter \"[\"
-  | TRBrack { tSpan :: !SrcSpan } -- ^ Delimiter \"]\"
-  | TLCurly { tSpan :: !SrcSpan } -- ^ Delimiter \"{\"
-  | TRCurly { tSpan :: !SrcSpan } -- ^ Delimiter \"}\"
-  | TDot { tSpan :: !SrcSpan } -- ^ Delimiter \".\"
-  | TComma { tSpan :: !SrcSpan } -- ^ Delimiter \",\"
-  | TSemiColon { tSpan :: !SrcSpan } -- ^ Delimiter \";\"
-  | TColon { tSpan :: !SrcSpan } -- ^ Delimiter \":\"
-  | TAssign { tSpan :: !SrcSpan } -- ^ Delimiter \"=\"
-  | TMutAssign { tSpan :: !SrcSpan } -- ^ Delimiter \"<-\"
-  | TDefine { tSpan :: !SrcSpan } -- ^ Delimiter \":=\"
+  -- ** Delimiters
+  | TLParen        { tSpan :: !SrcSpan } -- ^ Delimiter \"(\"
+  | TRParen        { tSpan :: !SrcSpan } -- ^ Delimiter \")\"
+  | TLBrack        { tSpan :: !SrcSpan } -- ^ Delimiter \"[\"
+  | TRBrack        { tSpan :: !SrcSpan } -- ^ Delimiter \"]\"
+  | TLCurly        { tSpan :: !SrcSpan } -- ^ Delimiter \"{\"
+  | TRCurly        { tSpan :: !SrcSpan } -- ^ Delimiter \"}\"
+  | TDot           { tSpan :: !SrcSpan } -- ^ Delimiter \".\"
+  | TComma         { tSpan :: !SrcSpan } -- ^ Delimiter \",\"
+  | TSemiColon     { tSpan :: !SrcSpan } -- ^ Delimiter \";\"
+  | TColon         { tSpan :: !SrcSpan } -- ^ Delimiter \":\"
+  | TAssign        { tSpan :: !SrcSpan } -- ^ Delimiter \"=\"
+  | TMutAssign     { tSpan :: !SrcSpan } -- ^ Delimiter \"<-\"
+  | TDefine        { tSpan :: !SrcSpan } -- ^ Delimiter \":=\"
 
   -- Special Cases
-  | TEOF { tSpan :: !SrcSpan } -- ^ End of File
+  | TEOF           { tSpan :: !SrcSpan } -- ^ End of File
   deriving (Show, Eq, Ord, Typeable, Data)
 
 
@@ -176,9 +178,11 @@ classifyToken = \case
   TUse{}           -> Keyword
   TAs{}            -> Keyword
   TIf{}            -> Keyword
+  TUnless{}        -> Keyword
   TElif{}          -> Keyword
   TElse{}          -> Keyword
   TWhile{}         -> Keyword
+  TUntil{}         -> Keyword
   TFor{}           -> Keyword
   TIn{}            -> Keyword
   TTry{}           -> Keyword
