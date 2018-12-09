@@ -53,12 +53,12 @@ next line should be indented and is considered of the same logical line.
     3. If a line is indented relative to the previous one /and/ starts with
 an operator or a dot, it should be considered of the same logical line.
 -}
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ViewPatterns    #-}
 module Language.Coral.Lexer.Layout (fixLayout) where
 
-import           Language.Coral.Lexer.Token
-import           Language.Coral.Data.SrcSpan
+import Language.Coral.Data.SrcSpan
+import Language.Coral.Lexer.Token
 
 
 -- | Checks if a Token is a code token.

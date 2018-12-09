@@ -47,7 +47,7 @@ data SrcLoc
            , slocCol :: {-# UNPACK #-} !Int
            }
   | NoLoc
-  deriving (Eq, Ord, Show, Typeable, Data)
+  deriving (Eq, Ord, Show, Data)
 
 
 instance Span SrcLoc where

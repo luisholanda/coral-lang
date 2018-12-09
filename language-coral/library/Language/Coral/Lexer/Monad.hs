@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Language.Coral.Parser.Monad where
+module Language.Coral.Lexer.Monad where
 
 import           Control.Lens
 import           Control.Monad.Except
@@ -11,24 +11,24 @@ import           Data.Text.Prettyprint.Doc.Render.String
 import           Language.Coral.Data.InputStream
 import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Parser.Error
+import           Language.Coral.Lexer.Error
 
 
-internalError :: forall a s . Doc s -> P a
+internalError :: forall a s . Doc s -> L a
 internalError =
   throwError . StrError . renderString . layoutPretty defaultLayoutOptions
 
 
-spanError :: forall a b . Span a => a -> String -> P b
+spanError :: forall a b . Span a => a -> String -> L b
 spanError x str = internalError $ pretty (getSpan x) <+> pretty str
 
 
 
-type P a = StateT ParserState (Either ParserError) a
+type L a = StateT LexerState (Either LexerError) a
 
 
-data ParserState =
-  ParserState
+data LexerState =
+  LexerState
   { _location :: !SrcLoc     -- ^ Position at current input location
   , _input :: !InputStream   -- ^ The current input
   , _previousToken :: !Token -- ^ The previous token
@@ -38,42 +38,32 @@ data ParserState =
   , _lastEOL :: !SrcSpan     -- ^ Location of the last end-of-line encountered
   , _comments :: [Token]     -- ^ Accumulated comments
   } deriving Show
-makeClassy ''ParserState
+makeClassy ''LexerState
 
 
-execParser :: forall a . P a -> ParserState -> Either ParserError a
-execParser = evalStateT
+execLexer :: forall a . L a -> LexerState -> Either LexerError a
+execLexer = evalStateT
 
 
-execParserKeepComments
-  :: forall a . P a -> ParserState -> Either ParserError (a, [Token])
-execParserKeepComments parser = evalStateT $ do
+execLexerKeepComments
+  :: forall a . L a -> LexerState -> Either LexerError (a, [Token])
+execLexerKeepComments parser = evalStateT $ do
   result <- parser
   coms   <- getComments
   pure (result, coms)
 
 
-runParser :: forall a . P a -> ParserState -> Either ParserError (a, ParserState)
-runParser = runStateT
-{-# INLINE runParser #-}
-
-
-returnP :: forall a . a -> P a
-returnP = pure
-{-# INLINE returnP #-}
-
-
-thenP :: forall a b . P a -> (a -> P b) -> P b
-thenP = (>>=)
-{-# INLINE thenP #-}
+runLexer :: forall a . L a -> LexerState -> Either LexerError (a, LexerState)
+runLexer = runStateT
+{-# INLINE runLexer #-}
 
 
 initToken :: Token
 initToken = TNewLine SpanEmpty
 
 
-initialState :: SrcLoc -> InputStream -> [Int] -> ParserState
-initialState initLoc inp scStack = ParserState
+initialState :: SrcLoc -> InputStream -> [Int] -> LexerState
+initialState initLoc inp scStack = LexerState
   { _location       = initLoc
   , _input          = inp
   , _previousToken  = initToken
@@ -85,64 +75,64 @@ initialState initLoc inp scStack = ParserState
   }
 
 
-pushStartCode :: Int -> P ()
+pushStartCode :: Int -> L ()
 pushStartCode code = startCodeStack %= (code :)
 
 
-popStartCode :: P ()
+popStartCode :: L ()
 popStartCode = use startCodeStack >>= \case
   [] -> internalError "fatal error in lexer: attempt to pop empty start code stack"
   _ : rest -> startCodeStack .= rest
 
 
-getStartCode :: P Int
+getStartCode :: L Int
 getStartCode = use startCodeStack >>= \case
   [] ->
     internalError "fatal error in lexer: start code stack empty on `getStartCode`"
   code : _ -> pure code
 
 
-pushIndent :: Int -> P ()
+pushIndent :: Int -> L ()
 pushIndent ind = indentStack %= (ind :)
 
 
-popIndent :: P ()
+popIndent :: L ()
 popIndent = use indentStack >>= \case
   [] -> internalError "fatal error in lexer: attempt to pop empty indent stack"
   _ : rest -> indentStack .= rest
 
 
-getIndent :: P Int
+getIndent :: L Int
 getIndent = use indentStack >>= \case
   []      -> internalError "fatal error in lexer: indent stack empty on `getIndent`"
   ind : _ -> pure ind
 
 
-getIndentStackDepth :: P Int
+getIndentStackDepth :: L Int
 getIndentStackDepth = indentStack `uses` length
 
 
-pushParen :: Token -> P ()
+pushParen :: Token -> L ()
 pushParen symbol = parenStack %= (symbol :)
 
 
-popParen :: P ()
+popParen :: L ()
 popParen = use parenStack >>= \case
   []       -> internalError "fatal error in lexer: attempt to pop empty paren stack"
   _ : rest -> parenStack .= rest
 
 
-getParen :: P (Maybe Token)
+getParen :: L (Maybe Token)
 getParen = parenStack `uses` listToMaybe
 
 
-getParenStackDepth :: P Int
+getParenStackDepth :: L Int
 getParenStackDepth = parenStack `uses` length
 
 
-addComment :: Token -> P ()
+addComment :: Token -> L ()
 addComment com = comments %= (com :)
 
 
-getComments :: P [Token]
+getComments :: L [Token]
 getComments = comments `uses` reverse

@@ -58,7 +58,7 @@ class KnownNat n => Radix n where
 instance Radix RADIX where;\
   {-# INLINE isDigit #-};\
   {-# INLINE unsafeToDigit #-};\
-  isDigit _ = \w -> 48 <= w && w <= MAX;\
+  isDigit _ w = 48 <= w && w <= MAX;\
   unsafeToDigit _ w = w - 48
 
 
@@ -77,12 +77,10 @@ defineRadixUnder10(10, 57)
 instance Radix RADIX where;\
   {-# INLINE isDigit #-};\
   {-# INLINE unsafeToDigit #-};\
-  isDigit _ = \w -> 48 <= w && w <= 57 || 65 <= w && w <= MAXu || 97 <= w && w <= MAXl;\
-  unsafeToDigit _ w = if w <= 57;\
-                      then w - 48;\
-                      else if w <= 90;\
-                           then w - 55;\
-                           else w - 87
+  isDigit _ w = 48 <= w && w <= 57 || 65 <= w && w <= MAXu || 97 <= w && w <= MAXl;\
+  unsafeToDigit _ w | w <= 57   = w - 48\
+                    | w <= 90   = w - 55\
+                    | otherwise = w - 87;
 
 
 defineRadixOver10(11, 65, 97)

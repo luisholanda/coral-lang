@@ -4,42 +4,43 @@ import           Control.Lens
 import           Control.Exception              ( throw )
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Internal      as B
+import           Data.Functor                   ( ($>) )
 
 import           Language.Coral.Data.InputStream
 import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Parser.Error
-import           Language.Coral.Parser.Monad
+import           Language.Coral.Lexer.Error
+import           Language.Coral.Lexer.Monad
 
 
 data BeginOf = BeginFile | BeginLine deriving Eq
 
-type Action = SrcSpan -> Int -> InputStream -> P Token
+type Action = SrcSpan -> Int -> InputStream -> L Token
 
 
-endOfLine :: P Token -> Action
+endOfLine :: L Token -> Action
 endOfLine lexToken s _len _str = do
   lastEOL .= spanStartPoint s
   lexToken
 
 
-bolEndOfLine :: P Token -> Int -> Action
+bolEndOfLine :: L Token -> Int -> Action
 bolEndOfLine lexToken bol s len inp = do
   pushStartCode bol
   endOfLine lexToken s len inp
 
 
-dedentation :: P Token -> Action
+dedentation :: L Token -> Action
 dedentation lexToken s _len _str = do
   top <- getIndent
   case startCol s `compare` top of
     EQ -> popStartCode >> lexToken
-    LT -> popIndent >> pure dedentToken
+    LT -> popIndent $> dedentToken
     GT -> spanError s "indentation error"
 
 
 -- | Hold's the logic behind the emission of indentation and new line tokens.
-indentation :: P Token -> Int -> BeginOf -> Action
+indentation :: L Token -> Int -> BeginOf -> Action
 -- Check if we are at EOF. If yes, we need to generate a
 -- newline in case we came here from BeginLine.
 indentation lexToken _dedent bo _loc _len bs | inputStreamEmpty bs =
@@ -58,7 +59,7 @@ indentation lexToken dedent bo loc _len _bs = do
           BeginLine -> newlineToken
           BeginFile -> lexToken
         LT -> pushStartCode dedent >> newlineToken
-        GT -> pushIndent (startCol loc) >> pure indentToken
+        GT -> pushIndent (startCol loc) $> indentToken
   where indentToken = TIndent loc
 
 
@@ -82,7 +83,7 @@ endOfFileToken = TEOF SpanEmpty
 dedentToken = TDedent SpanEmpty
 
 
-newlineToken :: P Token
+newlineToken :: L Token
 newlineToken = lastEOL `uses` TNewLine
 
 atEOLorEOF :: forall a . a -> AlexInput -> Int -> AlexInput -> Bool
@@ -132,7 +133,7 @@ closeParen mkToken loc _len _str =
   in  getParen >>= \case
         Nothing -> spanError loc err
         Just open ->
-          if matchParen open tok then popParen >> pure tok else spanError loc err
+          if matchParen open tok then popParen $> tok else spanError loc err
   where err = "lexical error: unmatched close paren"
 
 
@@ -169,7 +170,7 @@ alexMove '\r' = id
 alexMove _    = incColumn 1
 
 
-lexicalError :: P a
+lexicalError :: L a
 lexicalError = do
   loc <- use location
   c   <- use $ input . to takeChar . _1

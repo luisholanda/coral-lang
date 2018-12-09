@@ -2,7 +2,8 @@
     Defines the type that will hold any identifier in the
 language's types. Providing fast comparision and other utilities.
 -}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric      #-}
 module Language.Coral.Data.Ident
   ( Ident
   , mkIdent
@@ -11,20 +12,20 @@ module Language.Coral.Data.Ident
   )
 where
 
-import           Data.ByteString         hiding ( pack )
-import           Data.ByteString.Char8          ( pack )
-import           Data.Data                      ( Data )
-import           Data.Hashable
-import           Data.String                    ( IsString(..) )
-import           Data.Typeable                  ( Typeable )
-import           GHC.Generics                   ( Generic )
+import Data.ByteString       hiding ( pack )
+import Data.ByteString.Char8 ( pack )
+import Data.Data             ( Data )
+import Data.Hashable
+import Data.String           ( IsString (..) )
+import Data.Typeable         ( Typeable )
+import GHC.Generics          ( Generic )
 
 
 -- | An identifier
 data Ident = Ident
-  { name :: {-# UNPACK #-} !ByteString -- ^ Content of the identifier
+  { name  :: {-# UNPACK #-} !ByteString -- ^ Content of the identifier
   , _hash :: {-# UNPACK #-} !Int -- ^ Hash of the content, used for hash comparisions
-  } deriving (Data, Typeable, Generic)
+  } deriving (Data, Generic)
 
 
 instance Show Ident where
@@ -49,6 +50,7 @@ instance Ord Ident where
 instance Semigroup Ident where
   i1 <> i2 = mkIdent $ name i1 <> name i2
   {-# INLINE (<>) #-}
+
 
 instance Monoid Ident where
   mempty = mkIdent ""

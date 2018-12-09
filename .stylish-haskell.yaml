@@ -23,7 +23,7 @@ steps:
       remove_redundant: true
 
   - trailing_whitespace: {}
-    
+
 columns: 84
 
 newline: native
@@ -31,3 +31,5 @@ newline: native
 language_extensions:
   - UnicodeSyntax
   - ScopedTypeVariables
+  - DataKinds
+  - GADTs

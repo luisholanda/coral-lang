@@ -21,7 +21,7 @@ import           Language.Coral.Data.InputStream (peekBytes)
 import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Common
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Parser.Monad
+import           Language.Coral.Lexer.Monad
 }
 
 $lf              = \n
@@ -98,6 +98,8 @@ tokens :-
     @rbs_prefix @bytestring      { mkString rawByteStringToken }
 
 
+    -- We need to put this separated of the others keywords as it is formed by two words.
+    "else if"                    { \loc len str -> keywordOrIdent (peekBytes len str) loc }
     @ident                       { \loc len str -> keywordOrIdent (peekBytes len str) loc }
 
 
@@ -139,8 +141,7 @@ tokens :-
     ","                          { symbol TComma }
     ";"                          { symbol TSemiColon }
     ":"                          { symbol TColon }
-    "="                          { symbol TAssign }
-    ".="                         { symbol TMutAssign }
+    "="                         { symbol TMutAssign }
     ":="                         { symbol TDefine }
 }
 
@@ -165,7 +166,7 @@ initStartCodeStack :: [Int]
 initStartCodeStack = [0]
 
 
-lexToken :: P Token
+lexToken :: L Token
 lexToken = do
   loc  <- use location
   inp  <- use input
@@ -190,7 +191,7 @@ lexToken = do
       previousToken <.= tok
 
 
-lexCont :: (Token -> P a) -> P a
+lexCont :: (Token -> L a) -> L a
 lexCont cont = lexLoop where
   lexLoop = do
     tok <- lexToken
@@ -214,12 +215,13 @@ comment :: forall a . SrcSpan -> BS.ByteString -> a -> Token
 comment loc lit _ = TComLine loc $ BE.drop 2 lit
 
 
-keywordOrIdent :: BS.ByteString -> SrcSpan -> P Token
+keywordOrIdent :: BS.ByteString -> SrcSpan -> L Token
 keywordOrIdent str loc = pure $ case Map.lookup str keywords of
   Just sym -> sym loc
   Nothing  -> TIdentifier loc str
 
 
+-- We don't include @else if@ here because this only matches one word
 keywords :: Map.Map BS.ByteString (SrcSpan -> Token)
 keywords = Map.fromList [ ("False", TFalse)
                         , ("True", TTrue)
@@ -230,7 +232,6 @@ keywords = Map.fromList [ ("False", TFalse)
                         , ("as", TAs)
                         , ("if", TIf)
                         , ("unless", TUnless)
-                        , ("elif", TElif)
                         , ("else", TElse)
                         , ("while", TWhile)
                         , ("until", TUntil)

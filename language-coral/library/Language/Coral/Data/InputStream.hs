@@ -20,8 +20,8 @@ import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Internal      as B
 import qualified Data.ByteString.UTF8          as BE
 import           Data.Coerce                    ( coerce )
-import           Data.Word                      ( Word8 )
 import           Data.String                    ( IsString(..) )
+import           Data.Word                      ( Word8 )
 import           System.IO
 
 

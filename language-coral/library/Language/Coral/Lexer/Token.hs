@@ -1,4 +1,9 @@
-module Language.Coral.Lexer.Token where
+module Language.Coral.Lexer.Token
+  ( Token(..)
+  , hasLiteral
+  , TokenClass(..)
+  , classifyToken
+  ) where
 
 import           Data.ByteString                ( ByteString )
 import           Data.Data
@@ -30,9 +35,9 @@ data Token
   | TInteger       { tSpan :: !SrcSpan, literal :: !ByteString, integer :: !Integer } -- ^ Literal integer
   | TFloat         { tSpan :: !SrcSpan, literal :: !ByteString, float :: {-# UNPACK #-} !Double } -- ^ Literal float
   | TImaginary     { tSpan :: !SrcSpan, literal :: !ByteString, imaginary :: {-# UNPACK #-} !Double } -- ^ Literal imaginary
-  | TTrue          { tSpan :: !SrcSpan }-- ^ Literal @True@
+  | TTrue          { tSpan :: !SrcSpan } -- ^ Literal @True@
   | TFalse         { tSpan :: !SrcSpan } -- ^ Literal @False@
-  | TNone          { tSpan :: !SrcSpan }-- ^ Literal @None@
+  | TNone          { tSpan :: !SrcSpan } -- ^ Literal @None@
 
   -- Keywords
   | TModule        { tSpan :: !SrcSpan } -- ^ Keyword \"module\"
@@ -41,7 +46,7 @@ data Token
   | TAs            { tSpan :: !SrcSpan } -- ^ Keyword \"as\"
   | TIf            { tSpan :: !SrcSpan } -- ^ Keyword \"if\"
   | TUnless        { tSpan :: !SrcSpan } -- ^  Keyword \"unless\"
-  | TElif          { tSpan :: !SrcSpan } -- ^ Keyword \"elif\"
+  | TElif          { tSpan :: !SrcSpan } -- ^ Keyword \"else if\"
   | TElse          { tSpan :: !SrcSpan } -- ^ Keyword \"else\"
   | TWhile         { tSpan :: !SrcSpan } -- ^ Keyword \"while\"
   | TUntil         { tSpan :: !SrcSpan } -- ^ Keyword \"until\"
@@ -74,7 +79,6 @@ data Token
   | TBitAnd        { tSpan :: !SrcSpan } -- ^ Operator \"&\"
   | TBitOr         { tSpan :: !SrcSpan } -- ^ Operator \"|\"
   | TArrow         { tSpan :: !SrcSpan } -- ^ Operator \"->\"
-  | TFatArrow      { tSpan :: !SrcSpan } -- ^ Oeprator \"=>\"
   | TPipe          { tSpan :: !SrcSpan } -- ^ Operator \"|>\"
 
   -- Boolean Operators
@@ -90,7 +94,7 @@ data Token
   | TNe            { tSpan :: !SrcSpan } -- ^ Operator \"!=\"
   | TEq            { tSpan :: !SrcSpan } -- ^ Operator \"==\"
 
-  -- ** Delimiters
+  -- Delimiters
   | TLParen        { tSpan :: !SrcSpan } -- ^ Delimiter \"(\"
   | TRParen        { tSpan :: !SrcSpan } -- ^ Delimiter \")\"
   | TLBrack        { tSpan :: !SrcSpan } -- ^ Delimiter \"[\"
@@ -101,13 +105,13 @@ data Token
   | TComma         { tSpan :: !SrcSpan } -- ^ Delimiter \",\"
   | TSemiColon     { tSpan :: !SrcSpan } -- ^ Delimiter \";\"
   | TColon         { tSpan :: !SrcSpan } -- ^ Delimiter \":\"
-  | TAssign        { tSpan :: !SrcSpan } -- ^ Delimiter \"=\"
-  | TMutAssign     { tSpan :: !SrcSpan } -- ^ Delimiter \"<-\"
+  | TMutAssign     { tSpan :: !SrcSpan } -- ^ Delimiter \"=\"
   | TDefine        { tSpan :: !SrcSpan } -- ^ Delimiter \":=\"
+  | TFatArrow      { tSpan :: !SrcSpan } -- ^ Delimiter \"=>\"
 
   -- Special Cases
   | TEOF           { tSpan :: !SrcSpan } -- ^ End of File
-  deriving (Show, Eq, Ord, Typeable, Data)
+  deriving (Show, Eq, Ord, Data)
 
 
 instance Span Token where
@@ -212,7 +216,6 @@ classifyToken = \case
   TBitAnd{}        -> Operator
   TBitOr{}         -> Operator
   TArrow{}         -> Operator
-  TFatArrow{}      -> Operator
   TPipe{}          -> Operator
 
   -- Boolean Operators
@@ -239,7 +242,7 @@ classifyToken = \case
   TComma{}         -> Punctuation
   TSemiColon{}     -> Punctuation
   TColon{}         -> Punctuation
-  TAssign{}        -> Assigment
+  TFatArrow{}      -> Punctuation
   TMutAssign{}     -> Assigment
   TDefine{}        -> Assigment
 
