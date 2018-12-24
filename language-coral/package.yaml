@@ -73,6 +73,7 @@ library:
     - vector
     - mtl
     - lens
+    - text
     - hashable
   source-dirs: library
 
