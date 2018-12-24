@@ -9,12 +9,9 @@ use python:multiprocessing
 use std:result as res
 
 
-example : (arg1: Int, arg2: Int, ...args: *Int) -> Int
-example(arg1, arg2, ...args) :=
+example : (arg1: Int) -> (arg2: Int) -> Int
+example(arg1, arg2) :=
     var := foo(arg1.field) |> bar |> test
-
-    for arg in args
-        std:print(arg)
 
     return var
 

@@ -11,6 +11,8 @@ module Language.Coral.Syntax.Names
 where
 
 import           Data.Data                      ( Data )
+import           Data.List                      ( intersperse )
+import           Data.Text.Prettyprint.Doc
 
 import           Language.Coral.Data.Ident
 
@@ -100,3 +102,21 @@ instance Qualified 'QualType 'Type where
   qualify = QualTypeName
   module' (QualTypeName mod' _) = mod'
   disqualify (QualTypeName _ name) = name
+
+
+-- | Pretty instances
+
+instance Pretty (Name ty) where
+  pretty (IdentName ident) = pretty ident
+  pretty (TypeName  typ) = pretty typ
+  pretty (ModName names) = mconcat . intersperse colon . map pretty $ names
+  pretty (QualIdentName mod' ident) = pretty mod' <> colon <> pretty ident
+  pretty (QualTypeName mod' typ) = pretty mod' <> colon <> pretty typ
+
+
+instance Pretty Identifier where
+  pretty (Id ident) = pretty ident
+
+
+instance Pretty TypeIdentifier where
+  pretty (TI typ) = pretty typ

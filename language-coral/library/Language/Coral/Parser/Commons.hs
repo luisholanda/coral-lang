@@ -33,3 +33,4 @@ exprToMatch = go
     IdentName _ -> Just $ MatIdent ident a
     _           -> Nothing
   go (ExpLit lit a) = Just $ MatLit lit a
+  go (ExpParens e ) = exprToMatch e

@@ -1,5 +1,8 @@
 module Language.Coral.Syntax.Types where
 
+import           Data.Bifunctor
+import           Data.Text.Prettyprint.Doc
+
 import           Language.Coral.Syntax.Names
 
 
@@ -79,3 +82,55 @@ data Kind
   -- | A named kind
   | KndNamed !(Name 'Identifier)
   deriving (Eq, Show)
+
+
+-- | Pretty instances
+
+instance Pretty Type where
+  pretty (TyUnknown i) = "t" <> pretty i
+  pretty (TyVar typ) = pretty typ
+  pretty (TyConstructor typ) = pretty typ
+  pretty (TyApp typ1 typ2) = pretty typ1 <+> pretty typ2
+  pretty (TyFun (IdentName param, ptyp) ret) =
+    if param == mempty
+      then prettyFun (pretty ptyp) (pretty ret)
+      else prettyFun (parens $ pretty param <+> colon <+> pretty ptyp)
+                     (pretty ret)
+    where
+      prettyFun p r = align $ sep [p, "->" <+> r]
+  pretty (TyForAll as typ) = align $ sep [ "forall" <+> concatWith (surround comma) (map pretty as)
+                                         , "."
+                                         , pretty typ ]
+  pretty (TyConstraint cs typ) =
+    case cs of
+      [c] -> align $ sep [pretty c, "=>" <+> pretty typ]
+      _   -> align $ sep [tupled $ map pretty cs, "=>" <+> pretty typ]
+  pretty (TyKinded typ kind) = pretty typ <+> ":" <+> pretty kind
+  pretty (TyEff effs ret row) = "Eff" <+> prettyEffs <+> pretty ret
+    where
+      prettyEffs = case row of
+        Just r -> parens $ pEff <+> pipe <+> pretty r
+        Nothing -> case effs of
+          [_] -> parens pEff
+          _   -> pEff
+      pEff = case effs of
+        [e] -> pretty e
+        _   -> concatWith (surround comma) $ map pretty effs
+  pretty (TyRow rs row) = braces $ case row of
+    Just r -> cat $ pLabels ++ [pipe <+> pretty r]
+    Nothing -> cat pLabels
+    where
+      pLabels = head pL : map (", " <>) (tail pL)
+      pL = map (uncurry (surround colon) . bimap pretty pretty) rs
+  pretty (TyParens typ) = parens $ pretty typ
+
+
+instance Pretty Constraint where
+  pretty Constraint{constraintClass, constraintArgs} =
+    hsep $ pretty constraintClass : map pretty constraintArgs
+
+
+instance Pretty Kind where
+  pretty (KndUnknown i) = "k" <> pretty i
+  pretty (KndFunc k1 k2) = align $ sep [pretty k1, "->" <+> pretty k2]
+  pretty (KndNamed kind) = pretty kind

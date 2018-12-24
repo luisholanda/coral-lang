@@ -25,6 +25,7 @@ where
 
 import           Data.ByteString                ( ByteString )
 import           Data.Data                      ( Data )
+import           Data.Text.Prettyprint.Doc
 
 import           Language.Coral.Syntax.Names
 import           Language.Coral.Syntax.Types
@@ -137,7 +138,7 @@ data Statement a
   -- | A mutable variable definition
   | StMutDef    (Name 'Identifier) (Expr a) a
   -- | A mutable assignment statement
-  | StMutAssign (Match a) (Expr a) a
+  | StMutAssign (Name 'Identifier) (Expr a) a
   -- | A expression statement
   | StExpr      (Expr a) a
   -- | A @if@ statement
@@ -305,3 +306,208 @@ data Match a
   -- | Matches a literal value.
   | MatLit   (Lit a) a
   deriving (Functor, Show)
+
+
+-- * Pretty Instances
+
+indent' :: forall a . Doc a -> Doc a
+indent' = indent 2
+
+lines' :: forall a . [Doc a] -> Doc a
+lines' = align . concatWith (surround hardline)
+
+indline' :: forall a . Doc a
+indline' = flatAlt mempty (indent' hardline)
+
+
+prettyBlock :: forall a ann . Block a -> Doc ann
+prettyBlock = fuse Shallow . (hardline <>) . indent' . lines' . map pretty
+
+
+instance Pretty Module where
+  pretty Module{moduleName, exports, imports, definitions} = fuse Shallow $
+    "module" <+> pretty moduleName <> (case exports of
+      Just cs -> space <> "exports" <+> tupled (map pretty cs)
+      Nothing -> mempty) <> hardline <> pImports <> pDefs
+    where
+      pImports = fuse Shallow . lines' $ map pretty imports
+      pDefs = fuse Shallow . concatWith (surround $ hardline <> hardline) $ map pretty definitions
+
+
+instance Pretty Import where
+  pretty (ImpMod mod') = "use" <+> pretty mod'
+  pretty (ImpAli mod' alias) = fuse Shallow $ "use" <+> pretty mod' <+> "as" <+> pretty alias
+
+
+instance Pretty (Def ty a) where
+  pretty (DefAli ali typ _) = fuse Shallow $ "alias" <+> pretty ali <+> align (":=" <+> pretty typ)
+  pretty DefEff{} = "not implemented"
+  pretty (DefFun fun args block _) = fuse Shallow $
+    pretty fun <> tupled (map pretty args) <+> case block of
+      [e] -> indline' <> ":=" <+> pretty e
+      _ -> ":=" <> hardline <> fuse Shallow (indent' . vcat $ map pretty block)
+  pretty DefHan{} = "not implemented"
+  pretty (DefRec rec sigs _) = fuse Shallow . lines' $
+    ("record" <+> pretty rec <+> ":=") : map (indent' . pretty) sigs
+  pretty (DefTyp typ cons _) = fuse Shallow $
+    "type" <+> pretty typ <+> case cons of
+      [c] -> indline' <> ":=" <+> pretty c
+      _   -> indline' <> align (":=" <+> fuse Shallow (concatWith (surround pipe) $ map pretty cons))
+  pretty (DefSig name typ _) = fuse Shallow $ pretty name <> align (sep [" :", pretty typ])
+
+
+instance Pretty Definition where
+  pretty (D a) = pretty a
+
+
+instance Pretty (Argument a) where
+  pretty (Arg name) = pretty name
+  pretty (ArgDef name val) = pretty name <> "=" <> pretty val
+
+
+instance Pretty (Constructor a) where
+  pretty (ConsValue name _) = pretty name
+  pretty (ConsProd name fields _) = pretty name <> tupled (map pretty fields)
+
+
+instance Pretty (Statement a) where
+  pretty (StContinue _) = "continue"
+  pretty (StBreak _) = "break"
+  pretty (StReturn rets _) = "return" <+> pretty rets
+  pretty (StAssign mat e _) = pretty mat <+> ":=" <+> pretty e
+  pretty (StMutDef name val _) = "mut" <+> pretty name <+> ":=" <+> pretty val
+  pretty (StMutAssign name val _) = pretty name <+> "=" <+> pretty val
+  pretty (StExpr e _) = pretty e
+  pretty (StIf blocks else' _) =
+    let ifs = fuse Shallow . align . concatWith (surround $ hardline <> "else ") $ map pretty blocks
+        pElse' = maybe emptyDoc (fuse Shallow) $ ("else" <+>) . prettyBlock <$> else'
+     in ifs <> hardline <> pElse'
+  pretty (StUnless [] _ _) = error "empty if list in StUnless."
+  pretty (StUnless (If be b _:blocks) else' _) =
+    let first = "unless" <+> pretty be <> prettyBlock b
+        ifs = fuse Shallow . align . concatWith (surround $ hardline <> "else ") $ map pretty blocks
+        pElse' = maybe emptyDoc (fuse Shallow) $ ("else" <+>) . prettyBlock <$> else'
+     in first <> hardline <> "else" <> ifs <> hardline <> pElse'
+  pretty (StTry hs b cs f _) = fuse Shallow $
+    "try" <+> pWith <> prettyBlock b <> pCatchs <> pFin
+    where
+      pWith = case hs of
+        []  -> emptyDoc
+        [h] -> "with" <+> pretty h
+        _   -> "with" <+> tupled (map pretty hs)
+      pCatchs = fuse Shallow . lines' $ map pretty cs
+      pFin = case f of
+        Just b' -> "finally" <> prettyBlock b'
+        Nothing -> emptyDoc
+  pretty (StFor m e b _) = fuse Shallow $
+    "for" <+> pretty m <+> "in" <+> pretty e <> prettyBlock b
+  pretty (StWhile be b _) = fuse Shallow $
+    "while" <+> pretty be <> prettyBlock b
+  pretty (StUntil be b _) = fuse Shallow $
+    "until" <+> pretty be <> prettyBlock b
+  pretty (StFunDef d _) = pretty d
+  pretty (StSig s _) = pretty s
+
+
+instance Pretty (If a) where
+  pretty (If be b _) = fuse Shallow $ "if" <+> pretty be <> prettyBlock b
+
+
+instance Pretty (Catch a) where
+  pretty (Catch i a b _) =
+    let pAlias = maybe emptyDoc (enclose space space . pretty) a
+     in fuse Shallow $ "catch" <+> pretty i <> pAlias <> prettyBlock b
+
+
+instance Pretty (BoolExpr a) where
+  pretty (BlExpr e _) = pretty e
+  pretty (BlNot be _) = "not" <+> pretty be
+  pretty (BlAnd be1 be2 _) = pretty be1 <+> indline' <> "and" <+> pretty be2
+  pretty (BlOr be1 be2 _) = pretty be1 <+> indline' <> "or" <+> pretty be2
+  pretty (BlComp c e1 e2 _) = pretty e1 <+> indline' <> pretty c <+> pretty e2
+
+
+instance Pretty CompOp where
+  pretty CmpEq   = "=="
+  pretty CmpNeq  = "!="
+  pretty CmpLt   = "<"
+  pretty CmpGt   = ">"
+  pretty CmpLe   = "<="
+  pretty CmpGe   = ">="
+  pretty CmpNin  = "not in"
+  pretty CmpIn   = "in"
+
+
+instance Pretty (Expr a) where
+  pretty (ExpBoolExpr be _) = pretty be
+  pretty (ExpIdent i _) = pretty i
+  pretty (ExpLit lit _) = pretty lit
+  pretty (ExpOp op e1 e2 _) = pretty e1 <+> indline' <> pretty op <+> pretty e2
+  pretty (ExpCall fun ps _) = pretty fun <> tupled (map pretty ps)
+  pretty (ExpAccess e field _) = pretty e <> dot <> pretty field
+  pretty (ExpIndex e ix _) = pretty e <> brackets (pretty ix)
+  pretty (ExpComp comp _) = pretty comp
+  pretty (ExpTry e _) = "try" <+> pretty e
+  pretty (ExpOpTry e _) = "try?" <+> pretty e
+  pretty (ExpListCons h t _) = pretty h <+> indline' <> "::" <+> pretty t
+  pretty (ExpParens e) = parens $ pretty e
+
+
+instance Pretty Op where
+  pretty OpPlus  = "+"
+  pretty OpMinus = "-"
+  pretty OpMult  = "*"
+  pretty OpDiv   = "/"
+  pretty OpFlDiv = "//"
+  pretty OpPow   = "^"
+  pretty OpMod   = "%"
+  pretty OpLSft  = ">>"
+  pretty OpRSft  = "<<"
+  pretty OpBAnd  = "&"
+  pretty OpArrow = "->"
+  pretty OpPipe  = "|>"
+
+
+instance Pretty (Parameter a) where
+  pretty (ParCommon e _) = pretty e
+  pretty (ParNamed n e _) = pretty n <> "=" <> pretty e
+
+
+instance Pretty (Comprehension a) where
+  pretty (Comprehension e ts _) = fuse Shallow . brackets
+                                $ pretty e <+> pipe
+                              <+> concatWith (surround comma) (map pretty ts)
+
+
+instance Pretty (CompTest a) where
+  pretty (CompIter n e _) = pretty n <+> "<-" <+> pretty e
+  pretty (CompFil be _) = pretty be
+
+
+instance Pretty (Lit a) where
+  pretty (LitInt i _ _) = pretty i
+  pretty (LitFlt d _ _) = pretty d
+  pretty (LitImg d _ _) = "i" <> pretty d
+  pretty (LitStr p b _) = pretty p <> pretty (show b)
+  pretty (LitList ts _) = prettyList ts
+  pretty (LitTuple ts _) = tupled . map pretty $ ts
+  pretty (LitSum i _) = pretty i
+  pretty (LitBool b _) = pretty b
+  pretty (LitNone _) = "None"
+
+
+instance Pretty StrTy where
+  pretty Str = emptyDoc
+  pretty Raw = "r"
+  pretty Fmt = "f"
+  pretty Byte = "b"
+  pretty RawByte = "rb"
+  pretty RawFmt = "rf"
+
+
+instance Pretty (Match a) where
+  pretty (MatIdent i _) = pretty i
+  pretty (MatList ts _) = prettyList ts
+  pretty (MatTupl ts _) = tupled $ map pretty ts
+  pretty (MatProd typ as _) = pretty typ <> tupled (map pretty as)
+  pretty (MatLit lit _) = pretty lit

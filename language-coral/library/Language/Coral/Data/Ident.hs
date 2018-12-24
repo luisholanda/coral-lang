@@ -12,12 +12,13 @@ module Language.Coral.Data.Ident
   )
 where
 
-import Data.ByteString       hiding ( pack )
-import Data.ByteString.Char8 ( pack )
-import Data.Data             ( Data )
-import Data.Hashable
-import Data.String           ( IsString (..) )
-import GHC.Generics          ( Generic )
+import           Data.ByteString         hiding ( pack )
+import           Data.ByteString.Char8          ( pack )
+import           Data.Data                      ( Data )
+import           Data.Hashable
+import           Data.String                    ( IsString(..) )
+import           Data.Text.Prettyprint.Doc
+import           GHC.Generics                   ( Generic )
 
 
 -- | An identifier
@@ -29,6 +30,10 @@ data Ident = Ident
 
 instance Show Ident where
   show = show . name
+
+
+instance Pretty Ident where
+  pretty = pretty . show
 
 
 instance IsString Ident where

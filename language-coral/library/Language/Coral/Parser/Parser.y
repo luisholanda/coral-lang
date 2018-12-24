@@ -383,7 +383,7 @@ Statement :: { Statement () }
     | return Expr                           { StReturn $2 () }
     | Match ':=' Expr                       { StAssign $1 $3 () }
     | mut IdentName ':=' Expr               { StMutDef $2 $4 () }
-    | Match '=' Expr                        { StMutAssign $1 $3 () }
+    | IdentName '=' Expr                    { StMutAssign $1 $3 () }
     | Expr                                  { StExpr $1 () }
     | Function                              { StFunDef $1 () }
     | Signature                             { StSig $1 () }
