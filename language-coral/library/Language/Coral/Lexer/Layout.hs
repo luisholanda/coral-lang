@@ -75,8 +75,9 @@ createsImplicit :: Token -> Bool
 createsImplicit token = case classifyToken token of
   Operator    -> True
   Punctuation -> case token of
-    TDot{} -> True
-    _      -> False
+    TDot{}   -> True
+    TComma{} -> True
+    _        -> False
   _ -> False
 
 

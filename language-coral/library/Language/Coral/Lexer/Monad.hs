@@ -8,10 +8,10 @@ import           Data.Maybe                     ( listToMaybe )
 import           Data.Text.Prettyprint.Doc
 import           Data.Text.Prettyprint.Doc.Render.String
 
+import           Language.Coral.Data.Error
 import           Language.Coral.Data.InputStream
 import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Lexer.Error
 
 
 internalError :: forall a s . Doc s -> L a
@@ -23,37 +23,45 @@ spanError :: forall a b . Span a => a -> String -> L b
 spanError x str = internalError $ pretty (getSpan x) <+> pretty str
 
 
-
-type L a = StateT LexerState (Either LexerError) a
+type L a = StateT LexerState (Either CoralError) a
 
 
 data LexerState =
   LexerState
-  { _location :: !SrcLoc     -- ^ Position at current input location
-  , _input :: !InputStream   -- ^ The current input
-  , _previousToken :: !Token -- ^ The previous token
-  , _startCodeStack :: [Int] -- ^ A stack of start codes for the state of the lexer
-  , _indentStack :: [Int]    -- ^ A stack of source column positions of indenting levels
-  , _parenStack :: [Token]   -- ^ A stack of parens and brackets for indentation handling
-  , _lastEOL :: !SrcSpan     -- ^ Location of the last end-of-line encountered
-  , _comments :: [Token]     -- ^ Accumulated comments
+  { _location       :: !SrcLoc
+  -- ^ Position at current input location.
+  , _input          :: !InputStream
+  -- ^ The current input.
+  , _previousToken  :: !Token
+  -- ^ The previous token.
+  , _startCodeStack :: [Int]
+  -- ^ A stack of start codes for the state of the lexer.
+  , _indentStack    :: [Int]
+  -- ^ A stack of source column positions of indenting levels.
+  , _parenStack     :: [Token]
+  -- ^ A stack of parens and brackets for indentation handling.
+  , _lastEOL        :: !SrcSpan
+  -- ^ Location of the last end-of-line encountered.
+  , _comments       :: [Token]
+  -- ^ Accumulated comments.
   } deriving Show
 makeClassy ''LexerState
 
 
-execLexer :: forall a . L a -> LexerState -> Either LexerError a
+execLexer :: forall a . L a -> LexerState -> Either CoralError a
 execLexer = evalStateT
+{-# INLINE execLexer #-}
 
 
 execLexerKeepComments
-  :: forall a . L a -> LexerState -> Either LexerError (a, [Token])
+  :: forall a . L a -> LexerState -> Either CoralError (a, [Token])
 execLexerKeepComments parser = evalStateT $ do
   result <- parser
   coms   <- getComments
   pure (result, coms)
 
 
-runLexer :: forall a . L a -> LexerState -> Either LexerError (a, LexerState)
+runLexer :: forall a . L a -> LexerState -> Either CoralError (a, LexerState)
 runLexer = runStateT
 {-# INLINE runLexer #-}
 

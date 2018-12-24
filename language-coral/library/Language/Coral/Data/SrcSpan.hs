@@ -1,7 +1,9 @@
+{-# OPTIONS_GHC -Wno-partial-fields -Wno-incomplete-record-updates #-}
 module Language.Coral.Data.SrcSpan where
 
-import           Data.Data
-import           Data.Text.Prettyprint.Doc
+import Data.Data
+import Data.Text.Prettyprint.Doc
+
 
 -- | Type which have a span
 class Span a where
@@ -14,8 +16,8 @@ instance forall a . Span a => Span [a] where
   -- While this instance is not general enough, it's enough
   -- for the application in an AST, where the definitions satisfy
   -- the above assumption.
-  getSpan [] = SpanEmpty
-  getSpan [x] = getSpan x
+  getSpan []     = SpanEmpty
+  getSpan [x]    = getSpan x
   getSpan (x:xs) = x <-> last xs
 
 
@@ -52,7 +54,7 @@ data SrcLoc
 
 instance Span SrcLoc where
   getSpan NoLoc = SpanEmpty
-  getSpan loc = SpanPoint loc
+  getSpan loc   = SpanPoint loc
 
 
 instance Pretty SrcLoc where
@@ -86,17 +88,17 @@ incLine n SrcLoc { slocRow = row } = SrcLoc {slocCol = 1, slocRow = row + n}
 -- | Source location spanning a contiguous section of a file
 data SrcSpan
   -- | A span which starts and ends on the same line.
-  = SpanCoLin { spanRow :: {-# UNPACK #-} !Int
+  = SpanCoLin { spanRow      :: {-# UNPACK #-} !Int
               , spanStartCol :: {-# UNPACK #-} !Int
-              , spanEndCol :: {-# UNPACK #-} !Int }
+              , spanEndCol   :: {-# UNPACK #-} !Int }
   -- | A span which starts and ends on different lines
   | SpanMult { start :: !SrcLoc
-             , end :: !SrcLoc }
+             , end   :: !SrcLoc }
   -- | A span that is just one point in the file
   | SpanPoint { loc :: !SrcLoc }
   -- | No span information
   | SpanEmpty
-  deriving (Eq, Ord, Show, Typeable, Data)
+  deriving (Eq, Ord, Show, Data)
 
 
 instance Semigroup SrcSpan where
@@ -128,7 +130,7 @@ prettyMultiSpan s = parens $ start <> "-" <> end
 
 spanStartPoint :: SrcSpan -> SrcSpan
 spanStartPoint SpanEmpty = SpanEmpty
-spanStartPoint span      = SpanPoint $ SrcLoc (startRow span) (startCol span)
+spanStartPoint span'     = SpanPoint $ SrcLoc (startRow span') (startCol span')
 
 
 -- | Makes a span point from the start of the span

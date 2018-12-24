@@ -6,7 +6,7 @@
     {
       "label": "Build Project",
       "type": "shell",
-      "command": "stack build",
+      "command": "stack build --fast",
       "group": {
         "kind": "build",
         "isDefault": true

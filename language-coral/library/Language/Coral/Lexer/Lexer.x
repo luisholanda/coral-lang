@@ -9,12 +9,13 @@ module Language.Coral.Lexer.Lexer
 where
 
 import           Control.Lens
-import           Data.ByteString                  (ByteString)
-import qualified Data.ByteString                  as BS
-import qualified Data.ByteString.UTF8             as BE
+import           Data.ByteString                 (ByteString)
+import qualified Data.ByteString                 as BS
+import           Data.ByteString.Char8           (splitWith)
+import qualified Data.ByteString.UTF8            as BE
 import           Data.ByteString.Read.Fractional
 import           Data.ByteString.Read.Integral
-import qualified Data.Map                         as Map
+import qualified Data.Map                        as Map
 import           Data.Proxy
 
 import           Language.Coral.Data.InputStream (peekBytes)
@@ -44,6 +45,9 @@ $not_quote       = [. \n] # \"
 @xid_continue    = @xid_start | @xid_big_start | [$dec _ ']
 @ident           = @xid_start @xid_continue*
 @typename        = @xid_big_start @xid_continue*
+
+@qualident       = (@ident \.)+ @ident
+@qualtype        = (@ident \.)+ @typename
 
 @decimal = $non_zero_dec $dec*
 
@@ -97,10 +101,11 @@ tokens :-
     @bs_prefix @bytestring       { mkString byteStringToken }
     @rbs_prefix @bytestring      { mkString rawByteStringToken }
 
+    @qualident                   { \loc len str -> qualsym TQualIdent loc (peekBytes len str) }
+    @qualtype                    { \loc len str -> qualsym TQualType loc (peekBytes len str) }
 
-    -- We need to put this separated of the others keywords as it is formed by two words.
-    "else if"                    { \loc len str -> keywordOrIdent (peekBytes len str) loc }
-    @ident                       { \loc len str -> keywordOrIdent (peekBytes len str) loc }
+    @ident                       { \loc len str -> keywordOrIdent loc (peekBytes len str) }
+    @typename                    { \loc len str -> pure $ TTypeName loc (peekBytes len str) }
 
 
     "("                          { openParen TLParen }
@@ -122,11 +127,12 @@ tokens :-
     "&"                          { symbol TBitAnd }
     "|"                          { symbol TBitOr }
     "->"                         { symbol TArrow }
+    "<-"                         { symbol TLArrow }
     "=>"                         { symbol TFatArrow }
     "|>"                         { symbol TPipe }
+    "::"                         { symbol TCons }
 
     "not in"                     { symbol TNotIn }
-    "is"                         { symbol TIs }
     "not"                        { symbol TNot }
     "<"                          { symbol TLt }
     "<="                         { symbol TLe }
@@ -211,12 +217,17 @@ extract f inp = case f inp of
 {-# INLINE extract #-}
 
 
+qualsym :: (SrcSpan -> [BS.ByteString] -> Token)
+        -> SrcSpan -> BS.ByteString -> L Token
+qualsym sym loc str = pure . sym loc $ splitWith (==':') str
+
+
 comment :: forall a . SrcSpan -> BS.ByteString -> a -> Token
 comment loc lit _ = TComLine loc $ BE.drop 2 lit
 
 
-keywordOrIdent :: BS.ByteString -> SrcSpan -> L Token
-keywordOrIdent str loc = pure $ case Map.lookup str keywords of
+keywordOrIdent :: SrcSpan -> BS.ByteString -> L Token
+keywordOrIdent loc str = pure $ case Map.lookup str keywords of
   Just sym -> sym loc
   Nothing  -> TIdentifier loc str
 
@@ -226,6 +237,7 @@ keywords :: Map.Map BS.ByteString (SrcSpan -> Token)
 keywords = Map.fromList [ ("False", TFalse)
                         , ("True", TTrue)
                         , ("None", TNone)
+                        , ("Eff", TEff)
                         , ("module", TModule)
                         , ("exports", TExports)
                         , ("use", TUse)
@@ -250,6 +262,7 @@ keywords = Map.fromList [ ("False", TFalse)
                         , ("mut",TMut)
                         , ("break", TBreak)
                         , ("continue", TContinue)
+                        , ("return", TReturn)
                         ]
 
 }

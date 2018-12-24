@@ -42,8 +42,9 @@ default-extensions:
   - RankNTypes
   - ScopedTypeVariables
   - StandaloneDeriving
+  - TypeApplications
   - TypeFamilies
-  - TypeSynonymInstances
+  - TypeOperators
   - ViewPatterns
 
 ghc-options:
@@ -57,7 +58,6 @@ ghc-options:
   - -Wno-safe
   - -Wno-missing-local-signatures
   - -Wno-monomorphism-restriction
-  - -Wno-partial-fields
 
 library:
   build-tools:

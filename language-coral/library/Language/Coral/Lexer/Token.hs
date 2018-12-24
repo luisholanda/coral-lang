@@ -1,9 +1,11 @@
+{-# OPTIONS_GHC -Wno-partial-fields #-}
 module Language.Coral.Lexer.Token
   ( Token(..)
   , hasLiteral
   , TokenClass(..)
   , classifyToken
-  ) where
+  )
+where
 
 import           Data.ByteString                ( ByteString )
 import           Data.Data
@@ -24,6 +26,8 @@ data Token
   -- Identifiers
   | TIdentifier    { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Identifier
   | TTypeName      { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Concrete type name
+  | TQualIdent     { tSpan :: !SrcSpan, lits  :: ![ByteString] } -- ^ A qualified identifier
+  | TQualType      { tSpan :: !SrcSpan, lits  :: ![ByteString] } -- ^ A qualified type
 
   -- Literals
   | TString        { tSpan :: !SrcSpan, literal :: !ByteString } -- ^ Literal string
@@ -38,6 +42,7 @@ data Token
   | TTrue          { tSpan :: !SrcSpan } -- ^ Literal @True@
   | TFalse         { tSpan :: !SrcSpan } -- ^ Literal @False@
   | TNone          { tSpan :: !SrcSpan } -- ^ Literal @None@
+  | TEff           { tSpan :: !SrcSpan } -- ^ Literal @Eff@
 
   -- Keywords
   | TModule        { tSpan :: !SrcSpan } -- ^ Keyword \"module\"
@@ -46,7 +51,6 @@ data Token
   | TAs            { tSpan :: !SrcSpan } -- ^ Keyword \"as\"
   | TIf            { tSpan :: !SrcSpan } -- ^ Keyword \"if\"
   | TUnless        { tSpan :: !SrcSpan } -- ^  Keyword \"unless\"
-  | TElif          { tSpan :: !SrcSpan } -- ^ Keyword \"else if\"
   | TElse          { tSpan :: !SrcSpan } -- ^ Keyword \"else\"
   | TWhile         { tSpan :: !SrcSpan } -- ^ Keyword \"while\"
   | TUntil         { tSpan :: !SrcSpan } -- ^ Keyword \"until\"
@@ -65,6 +69,7 @@ data Token
   | TMut           { tSpan :: !SrcSpan } -- ^ Keyword \"mut\"
   | TBreak         { tSpan :: !SrcSpan } -- ^ Keyword \"break\"
   | TContinue      { tSpan :: !SrcSpan } -- ^ Keyword \"continue\"
+  | TReturn        { tSpan :: !SrcSpan } -- ^ Keyword \"return\"
 
   -- Operators
   | TMult          { tSpan :: !SrcSpan } -- ^ Operator \"*\"
@@ -80,10 +85,10 @@ data Token
   | TBitOr         { tSpan :: !SrcSpan } -- ^ Operator \"|\"
   | TArrow         { tSpan :: !SrcSpan } -- ^ Operator \"->\"
   | TPipe          { tSpan :: !SrcSpan } -- ^ Operator \"|>\"
+  | TCons          { tSpan :: !SrcSpan } -- ^ Operator \"::\"
 
   -- Boolean Operators
   | TNotIn         { tSpan :: !SrcSpan } -- ^ Operator \"not in\"
-  | TIs            { tSpan :: !SrcSpan } -- ^ Operator \"is\"
   | TNot           { tSpan :: !SrcSpan } -- ^ Operator \"not\"
   | TAnd           { tSpan :: !SrcSpan } -- ^ Operator \"and\"
   | TOr            { tSpan :: !SrcSpan } -- ^ Operator \"or\"
@@ -108,6 +113,7 @@ data Token
   | TMutAssign     { tSpan :: !SrcSpan } -- ^ Delimiter \"=\"
   | TDefine        { tSpan :: !SrcSpan } -- ^ Delimiter \":=\"
   | TFatArrow      { tSpan :: !SrcSpan } -- ^ Delimiter \"=>\"
+  | TLArrow        { tSpan :: !SrcSpan } -- ^ Delimiter \"->\"
 
   -- Special Cases
   | TEOF           { tSpan :: !SrcSpan } -- ^ End of File
@@ -161,6 +167,8 @@ classifyToken = \case
   -- Identifiers
   TIdentifier{}    -> Identifier
   TTypeName{}      -> Identifier
+  TQualIdent{}     -> Identifier
+  TQualType{}      -> Identifier
 
   -- Literals
   TString{}        -> String
@@ -175,6 +183,7 @@ classifyToken = \case
   TTrue{}          -> Boolean
   TFalse{}         -> Boolean
   TNone{}          -> Identifier
+  TEff{}           -> Identifier
 
   -- Keywords
   TModule{}        -> Keyword
@@ -183,7 +192,6 @@ classifyToken = \case
   TAs{}            -> Keyword
   TIf{}            -> Keyword
   TUnless{}        -> Keyword
-  TElif{}          -> Keyword
   TElse{}          -> Keyword
   TWhile{}         -> Keyword
   TUntil{}         -> Keyword
@@ -202,6 +210,7 @@ classifyToken = \case
   TMut{}           -> Keyword
   TBreak{}         -> Keyword
   TContinue{}      -> Keyword
+  TReturn{}        -> Keyword
 
   -- Operators
   TMult{}          -> Operator
@@ -214,13 +223,12 @@ classifyToken = \case
   TLShift{}        -> Operator
   TRShift{}        -> Operator
   TBitAnd{}        -> Operator
-  TBitOr{}         -> Operator
   TArrow{}         -> Operator
   TPipe{}          -> Operator
+  TCons{}          -> Operator
 
   -- Boolean Operators
   TNotIn{}         -> Operator
-  TIs{}            -> Operator
   TNot{}           -> Operator
   TAnd{}           -> Operator
   TOr{}            -> Operator
@@ -243,6 +251,8 @@ classifyToken = \case
   TSemiColon{}     -> Punctuation
   TColon{}         -> Punctuation
   TFatArrow{}      -> Punctuation
+  TLArrow{}        -> Punctuation
+  TBitOr{}         -> Punctuation
   TMutAssign{}     -> Assigment
   TDefine{}        -> Assigment
 

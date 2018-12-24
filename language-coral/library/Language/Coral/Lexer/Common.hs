@@ -6,10 +6,10 @@ import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Internal      as B
 import           Data.Functor                   ( ($>) )
 
+import           Language.Coral.Data.Error
 import           Language.Coral.Data.InputStream
 import           Language.Coral.Data.SrcSpan
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Lexer.Error
 import           Language.Coral.Lexer.Monad
 
 

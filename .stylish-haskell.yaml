@@ -29,7 +29,33 @@ columns: 84
 newline: native
 
 language_extensions:
-  - UnicodeSyntax
-  - ScopedTypeVariables
+  - BangPatterns
+  - BinaryLiterals
+  - ConstraintKinds
   - DataKinds
+  - DefaultSignatures
+  - DoAndIfThenElse
+  - EmptyDataDecls
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
   - GADTs
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - KindSignatures
+  - LambdaCase
+  - MonadFailDesugaring
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - PartialTypeSignatures
+  - PatternGuards
+  - PolyKinds
+  - RankNTypes
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TypeApplications
+  - TypeFamilies
+  - TypeOperators
+  - ViewPatterns

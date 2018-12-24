@@ -6,6 +6,7 @@ where
 
 import           Prelude
 
+import           Language.Coral.Data.Error
 import           Language.Coral.Data.InputStream
 import           Language.Coral.Data.SrcSpan    ( initialSrcLoc )
 import           Language.Coral.Lexer.Layout    ( fixLayout )
@@ -13,7 +14,6 @@ import           Language.Coral.Lexer.Lexer     ( lexToken
                                                 , initStartCodeStack
                                                 )
 import           Language.Coral.Lexer.Token
-import           Language.Coral.Lexer.Error
 import           Language.Coral.Lexer.Monad
 
 
@@ -21,18 +21,19 @@ initLexerState :: InputStream -> LexerState
 initLexerState inp = initialState initialSrcLoc inp initStartCodeStack
 
 
-lexer :: InputStream -> Either LexerError [Token]
+lexer :: InputStream -> Either CoralError [Token]
 lexer = lexWith execLexer
 
 
-lexerKeepComments :: InputStream -> Either LexerError ([Token], [Token])
+lexerKeepComments :: InputStream -> Either CoralError ([Token], [Token])
 lexerKeepComments = lexWith execLexerKeepComments
 
 
-lexWith :: forall a
-         . (L [Token] -> LexerState -> Either LexerError a)
-        -> InputStream
-        -> Either LexerError a
+lexWith
+  :: forall a
+   . (L [Token] -> LexerState -> Either CoralError a)
+  -> InputStream
+  -> Either CoralError a
 lexWith exec = exec _lexer . initLexerState
 
 

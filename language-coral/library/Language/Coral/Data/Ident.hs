@@ -17,7 +17,6 @@ import Data.ByteString.Char8 ( pack )
 import Data.Data             ( Data )
 import Data.Hashable
 import Data.String           ( IsString (..) )
-import Data.Typeable         ( Typeable )
 import GHC.Generics          ( Generic )
 
 
