@@ -8,12 +8,13 @@ module Language.Coral.Data.Reversed
     , rsingleton
     , snoc
     , toList
-    ) where
+    )
+where
 
-import Data.Foldable ( foldr', toList )
-import Data.Sequence
+import           Data.Foldable                  ( toList )
+import           Data.Sequence
 
-import Language.Coral.Data.SrcSpan
+import           Language.Coral.Data.SrcSpan
 
 
 -- | Fast reverse list-like structure.

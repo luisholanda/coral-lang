@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -Wno-partial-fields -Wno-incomplete-record-updates #-}
 module Language.Coral.Data.SrcSpan where
 
-import Data.Data
-import Data.Text.Prettyprint.Doc
+import           Data.Data
+import           Data.Text.Prettyprint.Doc
 
 
 -- | Type which have a span
@@ -62,7 +62,7 @@ instance Pretty SrcLoc where
 
 
 initialSrcLoc :: SrcLoc
-initialSrcLoc = SrcLoc {slocRow = 1, slocCol = 0}
+initialSrcLoc = SrcLoc { slocRow = 1, slocCol = 0 }
 
 
 -- | Decrease the column of a @SrcLoc@
@@ -82,15 +82,19 @@ incColumn n loc@SrcLoc { slocCol = col } = loc { slocCol = col + n }
 -- | Increases the line number of a @SrcLoc@ by one
 incLine :: Int -> SrcLoc -> SrcLoc
 incLine _ NoLoc                    = error "internal error: try incLine with NoLoc"
-incLine n SrcLoc { slocRow = row } = SrcLoc {slocCol = 1, slocRow = row + n}
+incLine n SrcLoc { slocRow = row } = SrcLoc { slocCol = 1, slocRow = row + n }
 
 
 -- | Source location spanning a contiguous section of a file
 data SrcSpan
   -- | A span which starts and ends on the same line.
   = SpanCoLin { spanRow      :: {-# UNPACK #-} !Int
+              -- ^ Span's line
               , spanStartCol :: {-# UNPACK #-} !Int
-              , spanEndCol   :: {-# UNPACK #-} !Int }
+              -- ^ Span's Start column
+              , spanEndCol   :: {-# UNPACK #-} !Int
+              -- ^ Span's end column
+              }
   -- | A span which starts and ends on different lines
   | SpanMult { start :: !SrcLoc
              , end   :: !SrcLoc }
@@ -138,14 +142,14 @@ spanStart :: SrcSpan -> SrcSpan
 spanStart SpanEmpty          = SpanEmpty
 spanStart s@SpanPoint{}      = s
 spanStart SpanMult { start } = SpanPoint start
-spanStart s = SpanPoint $ SrcLoc {slocRow = startRow s, slocCol = startCol s}
+spanStart s = SpanPoint $ SrcLoc { slocRow = startRow s, slocCol = startCol s }
 
 -- | Makes a span point from the end of the span
 spanEnd :: SrcSpan -> SrcSpan
 spanEnd SpanEmpty        = SpanEmpty
 spanEnd s@SpanPoint{}    = s
 spanEnd SpanMult { end } = SpanPoint end
-spanEnd s = SpanPoint $ SrcLoc {slocRow = endRow s, slocCol = endCol s}
+spanEnd s = SpanPoint $ SrcLoc { slocRow = endRow s, slocCol = endCol s }
 
 
 startLoc :: SrcSpan -> SrcLoc

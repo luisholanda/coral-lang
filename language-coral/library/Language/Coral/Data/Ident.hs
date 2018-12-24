@@ -2,8 +2,6 @@
     Defines the type that will hold any identifier in the
 language's types. Providing fast comparision and other utilities.
 -}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric      #-}
 module Language.Coral.Data.Ident
   ( Ident
   , mkIdent

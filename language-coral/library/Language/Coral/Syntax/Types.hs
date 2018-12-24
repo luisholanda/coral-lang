@@ -64,7 +64,7 @@ data Type
   deriving (Eq, Show)
 
 
--- A typeclass constraint
+-- | A typeclass constraint
 data Constraint = Constraint
   { constraintClass :: !(Name 'Type)
   -- ^ Constraint class name

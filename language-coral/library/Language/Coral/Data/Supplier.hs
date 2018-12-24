@@ -3,10 +3,10 @@ generating new identifiers in analysis. -}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Language.Coral.Data.Supplier where
 
-import Control.Monad.State
-import Data.ByteString.Char8 ( singleton )
+import           Control.Monad.State
+import           Data.ByteString.Char8          ( singleton )
 
-import Language.Coral.Data.Ident
+import           Language.Coral.Data.Ident
 
 
 {-| Hability of supllying names. -}
@@ -22,11 +22,13 @@ class Monad m => MonadSupply m where
 newtype SupplyT m a = SupplyT { unSupply :: StateT Supplier m a }
   deriving (Functor, Applicative, Monad, MonadState Supplier)
 
+
 newName :: Monad m => SupplyT m Int
 newName = do
-  (name, gen) <- nextName <$> get
+  (name, gen) <- gets nextName
   put gen
   pure name
+
 
 instance Monad m => MonadSupply (SupplyT m) where
   getIdent = mkIdentS <$> newName
