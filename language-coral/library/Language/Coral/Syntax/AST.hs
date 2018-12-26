@@ -54,7 +54,7 @@ data Import
 type Block a = [Statement a]
 
 
-data DefType = Sig | Fun | Typ | Ali | Rec | Eff | Han
+data DefType = Sig | Fun | Typ | Ali | Rec | Eff | Han | Cla | Ins
   deriving (Show, Data)
 
 
@@ -99,10 +99,33 @@ data Def (t :: DefType)  a  where
   --   bar: b
   -- @
   DefRec :: Type -> [Def 'Sig a] -> a -> Def 'Rec a
+  -- | A type class
+  --
+  -- e.g.
+  -- @
+  -- class Functor f with
+  --   map : (a -> b) -> f a -> f b
+  -- @
+  DefCla :: Type -> [Definition] -> a -> Def 'Cla a
+  -- | A type class instance
+  --
+  -- e.g.
+  -- @
+  -- instance Functor (List a) with
+  --   map(f, xs) := xs->head : map(f, xs->tail)
+  -- @
+  DefIns :: Type -> [Definition] -> a -> Def 'Ins a
   -- | An effect
+  --
+  -- e.g.
+  -- @
+  -- effect State s with
+  --   get : () -> s
+  --   put : s -> ()
+  -- @
   DefEff :: Type -> [Def 'Sig a] -> a -> Def 'Eff a
   -- | A handler
-  DefHan :: Type -> [Def 'Sig a] -> a -> Def 'Han a
+  DefHan :: Type -> Type -> [Definition] -> a -> Def 'Han a
 deriving instance Functor (Def t)
 deriving instance Show a => Show (Def t a)
 
@@ -354,6 +377,10 @@ instance Pretty (Def ty a) where
       [c] -> indline' <> ":=" <+> pretty c
       _   -> indline' <> align (":=" <+> fuse Shallow (concatWith (surround pipe) $ map pretty cons))
   pretty (DefSig name typ _) = fuse Shallow $ pretty name <> align (sep [" :", pretty typ])
+  pretty (DefCla typ defs _) = fuse Shallow $
+    "class" <+> pretty typ <+> "with" <> indline' <> lines' (map pretty defs)
+  pretty (DefIns typ defs _) = fuse Shallow $
+    "instance" <+> pretty typ <+> "with" <> indline' <> lines' (map pretty defs)
 
 
 instance Pretty Definition where

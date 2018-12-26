@@ -12,10 +12,6 @@ state 59 contains 1 shift/reduce conflicts.
 
     Conflicts: '('.
 
-Ambiguity when found an @IdentName@: we need another token of lookahead to
-determine if we found a identifier or if we are starting the definition of a
-function.
-
 --------------------------------------------------
 state 77 contains 1 shift/reduce conflicts.
 
@@ -122,31 +118,33 @@ import           Language.Coral.Syntax.Types
     '}'                         { TRCurly _ }
 
     -- Keywords
-    module                      { TModule _ }
-    exports                     { TExports _ }
-    use                         { TUse _ }
-    as                          { TAs _ }
-    if                          { TIf _ }
-    unless                      { TUnless _ }
-    else                        { TElse _ }
-    while                       { TWhile _ }
-    until                       { TUntil _ }
-    for                         { TFor _ }
-    in                          { TIn _ }
-    try                         { TTry _ }
-    catch                       { TCatch _ }
-    finally                     { TFinally _ }
-    with                        { TWith _ }
-    type                        { TType _ }
-    alias                       { TAlias _ }
-    record                      { TRecord _ }
-    effect                      { TEffect _ }
-    handler                     { THandler _ }
-    forall                      { TForall _ }
-    mut                         { TMut _ }
-    break                       { TBreak _ }
+    module                      { TModule _   }
+    exports                     { TExports _  }
+    use                         { TUse _      }
+    as                          { TAs _       }
+    if                          { TIf _       }
+    unless                      { TUnless _   }
+    else                        { TElse _     }
+    while                       { TWhile _    }
+    until                       { TUntil _    }
+    for                         { TFor _      }
+    in                          { TIn _       }
+    try                         { TTry _      }
+    catch                       { TCatch _    }
+    finally                     { TFinally _  }
+    with                        { TWith _     }
+    type                        { TType _     }
+    alias                       { TAlias _    }
+    record                      { TRecord _   }
+    effect                      { TEffect _   }
+    handler                     { THandler _  }
+    forall                      { TForall _   }
+    mut                         { TMut _      }
+    break                       { TBreak _    }
     continue                    { TContinue _ }
-    return                      { TReturn _ }
+    return                      { TReturn _   }
+    class                       { TClass _    }
+    instance                    { TInstance _ }
 
     -- Identifiers
     IDENTIFIER                  { TIdentifier _ _ }
@@ -268,6 +266,8 @@ Definition :: { Definition }
     | TypeDef                         { D $1 }
     | Alias                           { D $1 }
     | Record                          { D $1 }
+    | Class                           { D $1 }
+    | Instance                        { D $1 }
 
 
 Signature :: { Def Sig () }
@@ -282,7 +282,7 @@ Function :: { Def Fun () }
 
 
 TypeDef :: { Def Typ () }
-    : type Type ':=' sep_by1(Constructor, NEWLINE)
+    : type Type ':=' sep_by1(Constructor, '|')
         { DefTyp $2 (toList $4) () }
 
 
@@ -291,8 +291,18 @@ Alias :: { Def Ali () }
 
 
 Record :: { Def Rec () }
-    : record Type ':=' sep_by1(Signature, NEWLINE)
+    : record Type ':=' NEWLINE INDENT sep_by1(Signature, NEWLINE) DEDENT
         { DefRec $2 (toList $4) () }
+
+
+Class :: { Def Cla () }
+    : class Type with NEWLINE INDENT sep_by1(Definition, NEWLINE) DEDENT
+        { DefCla $2 (toList $4) () }
+
+
+Instance :: { Def Ins () }
+    : instance Type with NEWLINE INDENT sep_by1(Definition, NEWLINE) DEDENT
+        { DefIns $2 (toList $4) () }
 
 
 Argument :: { Argument () }

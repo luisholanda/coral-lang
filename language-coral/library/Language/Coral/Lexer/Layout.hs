@@ -101,12 +101,12 @@ fixLayout :: [Token] -> [Token]
 fixLayout = reverse . go [] (TNewLine SpanEmpty)
  where
   go :: [Token] -> Token -> [Token] -> [Token]
-  -- First rule
-  go rs l (NewLine ts)        | createsImplicit l = go rs l ts
-  -- Second rule
-  go rs l (IndentedLine t ts) | createsImplicit t = go (t : rs) l ts
-  -- Continuation
+  go rs l (NewLine ts@(t: _))
+    | createsImplicit l            = go rs l ts
+    | classifyToken t == Assigment = go rs l ts
+  go rs l (IndentedLine t ts)
+    | createsImplicit t            = go (t : rs) l ts
+    | classifyToken t == Assigment = go (t : rs) l ts
   go rs l (t : ts) | isCodeToken t = go (t : rs) t ts
                    | otherwise     = go (t : rs) l ts
-  -- We're done
   go rs _ []                       = rs

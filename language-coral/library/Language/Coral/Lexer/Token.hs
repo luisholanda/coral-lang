@@ -70,6 +70,8 @@ data Token
   | TBreak         { tSpan :: !SrcSpan } -- ^ Keyword \"break\"
   | TContinue      { tSpan :: !SrcSpan } -- ^ Keyword \"continue\"
   | TReturn        { tSpan :: !SrcSpan } -- ^ Keyword \"return\"
+  | TClass         { tSpan :: !SrcSpan } -- ^ Keyword \"class\"
+  | TInstance      { tSpan :: !SrcSpan } -- ^ Keyword \"instance\"
 
   -- Operators
   | TMult          { tSpan :: !SrcSpan } -- ^ Operator \"*\"
@@ -211,6 +213,8 @@ classifyToken = \case
   TBreak{}         -> Keyword
   TContinue{}      -> Keyword
   TReturn{}        -> Keyword
+  TClass{}         -> Keyword
+  TInstance{}      -> Keyword
 
   -- Operators
   TMult{}          -> Operator

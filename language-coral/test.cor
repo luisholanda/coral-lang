@@ -35,14 +35,14 @@ record MyRecord :=
   bar : List Int
 
 
-effect Logging r :=
-  debug : (msg: String) -> Eff [Logging | r] Void
-  info : (msg: String) -> Eff [Logging | r] Void
-  warning : (msg: String) -> Eff [Logging | r] Void
-  error : (msg: String) -> Eff [Logging | r] Void
+effect Logging r with
+  debug : (msg: String) -> Eff (Logging | r) Void
+  info : (msg: String) -> Eff (Logging | r) Void
+  warning : (msg: String) -> Eff (Logging | r) Void
+  error : (msg: String) -> Eff (Logging | r) Void
 
 
-handler IOLogger for Logger IO :=
+handler IOLogger for Logger IO with
   debug(msg) := std:print("DEBUG:", msg)
   info(msg) := std:print("INFO:", msg)
   warning(msg) := std:print("WARN:", msg)
