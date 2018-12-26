@@ -23,8 +23,8 @@ class Parse a where
     parse = parser <=< lexer
 
 
-instance Parse Module where parser = parseModule
-instance Parse Definition where parser = parseDef
+instance Parse (Module ()) where parser = parseModule
+instance Parse (Definition ()) where parser = parseDef
 instance Parse Type where parser = parseType
 instance Parse (Def 'Sig ()) where parser = parseSign
 instance Parse (Def 'Rec ()) where parser = parseRecrd

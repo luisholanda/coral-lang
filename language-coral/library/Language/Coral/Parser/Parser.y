@@ -245,7 +245,7 @@ or(p, q) :: { Either _ _ }
 --    Base Rules    --
 ----------------------
 
-Module :: { Module }
+Module :: { Module () }
     : module QualIdentName op(Exports) NEWLINE sep_by(Import, NEWLINE) many(Definition)
         { let modName = qualIdentToModName $2
           in Module modName $3 (toList $5) (toList $6) }
@@ -260,7 +260,7 @@ Import :: { Import }
     | use QualIdentName as IdentName     { ImpAli (qualIdentToModName $2) $4 }
 
 
-Definition :: { Definition }
+Definition :: { Definition () }
     : Signature                       { D $1 }
     | Function                        { D $1 }
     | TypeDef                         { D $1 }

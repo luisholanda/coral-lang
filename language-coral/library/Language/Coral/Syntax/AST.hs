@@ -31,7 +31,7 @@ import           Language.Coral.Syntax.Names
 import           Language.Coral.Syntax.Types
 
 
-data Module = Module
+data Module a = Module
   { moduleName  :: !(Name 'Mod)
   -- ^ Name of the module.
   , exports     :: !(Maybe [Identifier])
@@ -39,7 +39,7 @@ data Module = Module
   -- We put it inside a @Maybe@ to differentiate a missing
   -- export list to a empty export list.
   , imports     :: ![Import]
-  , definitions :: ![Definition]
+  , definitions :: ![Definition a]
   -- ^ Definitions of the module.
   } deriving Show
 
@@ -106,7 +106,7 @@ data Def (t :: DefType)  a  where
   -- class Functor f with
   --   map : (a -> b) -> f a -> f b
   -- @
-  DefCla :: Type -> [Definition] -> a -> Def 'Cla a
+  DefCla :: Type -> [Definition a] -> a -> Def 'Cla a
   -- | A type class instance
   --
   -- e.g.
@@ -114,7 +114,7 @@ data Def (t :: DefType)  a  where
   -- instance Functor (List a) with
   --   map(f, xs) := xs->head : map(f, xs->tail)
   -- @
-  DefIns :: Type -> [Definition] -> a -> Def 'Ins a
+  DefIns :: Type -> [Definition a] -> a -> Def 'Ins a
   -- | An effect
   --
   -- e.g.
@@ -125,13 +125,12 @@ data Def (t :: DefType)  a  where
   -- @
   DefEff :: Type -> [Def 'Sig a] -> a -> Def 'Eff a
   -- | A handler
-  DefHan :: Type -> Type -> [Definition] -> a -> Def 'Han a
-deriving instance Functor (Def t)
+  DefHan :: Type -> Type -> [Definition a] -> a -> Def 'Han a
 deriving instance Show a => Show (Def t a)
 
 
-data Definition = forall a (dk:: DefType) . Show a => D { def :: Def dk a }
-deriving instance Show Definition
+data Definition a = forall (dk:: DefType) . D { def :: Def dk a }
+deriving instance Show a => Show (Definition a)
 
 
 data Argument a
@@ -180,21 +179,21 @@ data Statement a
   | StFunDef    (Def 'Fun a) a
   -- | A local signature
   | StSig       (Def 'Sig a) a
-  deriving (Functor, Show)
+  deriving Show
 
 
 -- | A if block
 data If a = If (BoolExpr a) -- ^ Test of the block.
                (Block a)    -- ^ Statements that for mthe block.
                a
-  deriving (Functor, Show)
+  deriving (Show)
 
 
 data Catch a = Catch Identifier                 -- ^ Exception been catch.
                      (Maybe (Name 'Identifier)) -- ^ The alias to the exception.
                      (Block a)                  -- ^ The block of the catch.
                      a
-  deriving (Functor, Show)
+  deriving Show
 
 
 data BoolExpr a
@@ -347,7 +346,7 @@ prettyBlock :: forall a ann . Block a -> Doc ann
 prettyBlock = fuse Shallow . (hardline <>) . indent' . lines' . map pretty
 
 
-instance Pretty Module where
+instance Pretty (Module a) where
   pretty Module{moduleName, exports, imports, definitions} = fuse Shallow $
     "module" <+> pretty moduleName <> (case exports of
       Just cs -> space <> "exports" <+> tupled (map pretty cs)
@@ -383,7 +382,7 @@ instance Pretty (Def ty a) where
     "instance" <+> pretty typ <+> "with" <> indline' <> lines' (map pretty defs)
 
 
-instance Pretty Definition where
+instance Pretty (Definition a) where
   pretty (D a) = pretty a
 
 
