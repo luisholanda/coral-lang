@@ -1,0 +1,103 @@
+name: coralc
+version: "0.1.0"
+github: "luisholanda/coral"
+license: MIT
+author: "Luis Holanda <holandal@acm.org>"
+maintainer: "Luis Holanda <holandal@acm.org>"
+
+extra-source-files:
+  - package.yaml
+
+default-extensions:
+  - AutoDeriveTypeable
+  - BangPatterns
+  - BinaryLiterals
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - DoAndIfThenElse
+  - EmptyDataDecls
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - KindSignatures
+  - LambdaCase
+  - MonadFailDesugaring
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - OverloadedStrings
+  - PartialTypeSignatures
+  - PatternGuards
+  - PolyKinds
+  - RankNTypes
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TypeApplications
+  - TypeFamilies
+  - TypeOperators
+  - ViewPatterns
+
+ghc-options:
+  - -Weverything
+  - -Wno-missing-exported-signatures
+  - -Wno-missing-import-lists
+  - -Wno-missing-export-lists
+  - -Wno-implicit-prelude
+  - -Wno-all-missed-specialisations
+  - -Wno-unsafe
+  - -Wno-safe
+  - -Wno-missing-local-signatures
+  - -Wno-monomorphism-restriction
+
+library:
+  build-tools:
+    - alex
+    - happy
+  dependencies:
+    - base
+    - language-coral
+    - containers
+    - bytestring
+    - prettyprinter
+    - mtl
+    - lens
+    - text
+    - hashable
+  source-dirs: library
+
+benchmarks:
+  coral-benchmarks:
+    source-dirs: benchmark
+    main: Main.hs
+    dependencies:
+      - base
+      - coralc
+      - criterion
+    ghc-options:
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
+
+tests:
+  coral-test-suite:
+    source-dirs: tests
+    main: Main.hs
+    dependencies:
+      - base
+      - coralc
+      - tasty
+      - tasty-hspec
+    ghc-options:
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
