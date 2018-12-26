@@ -69,30 +69,16 @@ library:
     - bytestring
     - utf8-string
     - prettyprinter
-    - array
-    - vector
     - mtl
+    - array
     - lens
     - text
     - hashable
   source-dirs: library
 
-benchmarks:
-  coral-benchmarks:
-    source-dirs: benchmark
-    main: Main.hs
-    dependencies:
-      - base
-      - language-coral
-      - criterion
-    ghc-options:
-      - -rtsopts
-      - -threaded
-      - -with-rtsopts=-N
-
 tests:
   coral-test-suite:
-    source-dirs: test-suite
+    source-dirs: tests
     main: Main.hs
     dependencies:
       - base

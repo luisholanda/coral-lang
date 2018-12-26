@@ -292,17 +292,17 @@ Alias :: { Def Ali () }
 
 Record :: { Def Rec () }
     : record Type ':=' NEWLINE INDENT sep_by1(Signature, NEWLINE) DEDENT
-        { DefRec $2 (toList $4) () }
+        { DefRec $2 (toList $6) () }
 
 
 Class :: { Def Cla () }
     : class Type with NEWLINE INDENT sep_by1(Definition, NEWLINE) DEDENT
-        { DefCla $2 (toList $4) () }
+        { DefCla $2 (toList $6) () }
 
 
 Instance :: { Def Ins () }
     : instance Type with NEWLINE INDENT sep_by1(Definition, NEWLINE) DEDENT
-        { DefIns $2 (toList $4) () }
+        { DefIns $2 (toList $6) () }
 
 
 Argument :: { Argument () }

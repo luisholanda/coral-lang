@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3fbcb8df5a4ea37418d5bb2e9b8b3ff4d41c5a872dabaf63b10ca16ec6255919
+-- hash: 58198892226b9c2073ea231216c9db32446aceebbf899cbfcaa9abb05f48c8da
 
 name:           language-coral
 version:        0.1.0
@@ -67,7 +67,6 @@ library
     , prettyprinter
     , text
     , utf8-string
-    , vector
   default-language: Haskell2010
 
 test-suite coral-test-suite
@@ -76,7 +75,7 @@ test-suite coral-test-suite
   other-modules:
       Paths_language_coral
   hs-source-dirs:
-      test-suite
+      tests
   default-extensions: AutoDeriveTypeable BangPatterns BinaryLiterals ConstraintKinds DataKinds DefaultSignatures DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DoAndIfThenElse EmptyDataDecls ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MonadFailDesugaring MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedStrings PartialTypeSignatures PatternGuards PolyKinds RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeOperators ViewPatterns
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-implicit-prelude -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -rtsopts -threaded -with-rtsopts=-N
   build-depends:
@@ -84,19 +83,4 @@ test-suite coral-test-suite
     , language-coral
     , tasty
     , tasty-hspec
-  default-language: Haskell2010
-
-benchmark coral-benchmarks
-  type: exitcode-stdio-1.0
-  main-is: Main.hs
-  other-modules:
-      Paths_language_coral
-  hs-source-dirs:
-      benchmark
-  default-extensions: AutoDeriveTypeable BangPatterns BinaryLiterals ConstraintKinds DataKinds DefaultSignatures DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DoAndIfThenElse EmptyDataDecls ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MonadFailDesugaring MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedStrings PartialTypeSignatures PatternGuards PolyKinds RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeOperators ViewPatterns
-  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-implicit-prelude -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -rtsopts -threaded -with-rtsopts=-N
-  build-depends:
-      base
-    , criterion
-    , language-coral
   default-language: Haskell2010
